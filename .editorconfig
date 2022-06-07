@@ -1,4 +1,3 @@
-
 [*.{appxmanifest,asax,ascx,aspx,axaml,build,cg,cginc,compute,cs,cshtml,dtd,fs,fsi,fsscript,fsx,fx,fxh,hlsl,hlsli,hlslinc,master,ml,mli,nuspec,paml,razor,resw,resx,skin,usf,ush,vb,xaml,xamlx,xoml,xsd}]
 indent_style = space
 indent_size = 4
@@ -47,11 +46,11 @@ resharper_csharp_wrap_parameters_style = chop_if_long
 resharper_csharp_wrap_ternary_expr_style = chop_always
 resharper_fsharp_max_line_length = 140
 resharper_html_max_line_length = 140
-resharper_keep_existing_expr_member_arrangement = false
+resharper_keep_existing_expr_member_arrangement = true
 resharper_local_function_body = expression_body
 resharper_object_creation_when_type_not_evident = target_typed
 resharper_place_accessorholder_attribute_on_same_line = false
-resharper_place_expr_method_on_single_line = false
+resharper_place_expr_method_on_single_line = if_owner_is_single_line
 resharper_place_expr_property_on_single_line = true
 resharper_place_simple_anonymousmethod_on_single_line = false
 resharper_place_simple_embedded_statement_on_same_line = false
@@ -60,6 +59,7 @@ resharper_resx_max_line_length = 140
 resharper_show_autodetect_configure_formatting_tip = false
 resharper_t4_max_line_length = 140
 resharper_use_continuous_indent_inside_parens = false
+resharper_use_heuristics_for_body_style = true
 resharper_use_indent_from_vs = false
 resharper_vb_max_line_length = 140
 resharper_wrap_array_initializer_style = chop_always

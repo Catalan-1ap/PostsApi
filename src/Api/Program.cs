@@ -1,33 +1,34 @@
-using System;
-using System.IO;
-using System.Reflection;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using System.Text.Json;
+using Api.Filters;
+using Api.Installers;
+using Application;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-builder.Services.AddSwaggerGen(x =>
-{
-    x.SwaggerDoc("v1", new() { Title = "PostsApi", Version = "v1" });
+builder.Services
+    .AddControllers(x =>
+    {
+        x.Filters.Add<ExceptionFilter>();
+    })
+    .ConfigureApiBehaviorOptions(x =>
+    {
+        x.SuppressInferBindingSourcesForParameters = true;
+        x.SuppressMapClientErrors = true;
+    })
+    .AddJsonOptions(x =>
+    {
+        x.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+    });
+builder.Services.AddApplication();
 
-    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    x.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-});
+builder.Services.InstallSwaggerService();
+builder.Services.InstallInfrastructureService();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(x =>
-    {
-        x.SwaggerEndpoint("/swagger/v1/swagger.json", "PostsApi");
-        x.RoutePrefix = string.Empty;
-    });
-}
+app.InstallSwagger();
+await app.InstallInfrastructure();
 
 app.UseAuthorization();
 app.MapControllers();

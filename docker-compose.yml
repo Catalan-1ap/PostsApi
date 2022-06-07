@@ -2,19 +2,22 @@ version: "3.9"
 
 services:
   api:
+    depends_on:
+      - database
     build:
       context: .
-      dockerfile: Dockerfile 
+      dockerfile: Dockerfile
     ports:
       - "8000:80"
     environment:
-      POSTGRES_USER: "sa"
-      POSTGRES_PASSWORD: "pass"
+      POSTGRES_HOST: "localhost"
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_PORT: "8001"
   database:
     image: postgres:alpine
     ports:
       - "8001:5432"
     environment:
-      POSTGRES_USER: "sa"
-      POSTGRES_PASSWORD: "pass"
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}

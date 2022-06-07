@@ -2,39 +2,18 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using Ductus.FluentDocker;
 using Ductus.FluentDocker.Commands;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Xunit;
 
 
-namespace Api.IntegrationTests;
-
-
-[CollectionDefinition(nameof(ApiCollection))]
-public class ApiCollection : ICollectionFixture<ApiFixture> { }
-
-
-public class ApiFixture : DatabaseFixture
-{
-    public HttpClient Client { get; }
-
-
-    public ApiFixture() =>
-        Client = new WebApplicationFactory<Program>()
-            .WithWebHostBuilder(_ =>
-            {
-                Environment.SetEnvironmentVariable("POSTGRES_USER", "sa");
-                Environment.SetEnvironmentVariable("POSTGRES_PASSWORD", "pass");
-                Environment.SetEnvironmentVariable("POSTGRES_PORT", "8001");
-            })
-            .CreateClient();
-}
+namespace Api.IntegrationTests.Fixtures;
 
 
 public class DatabaseFixture : IDisposable
 {
+    protected static readonly KeyValuePair<string, string> Host = new("POSTGRES_HOST", "localhost");
+    protected static readonly KeyValuePair<string, string> User = new("POSTGRES_USER", "sa");
+    protected static readonly KeyValuePair<string, string> Password = new("POSTGRES_PASSWORD", "pass");
     private const string DockerComposeFileName = "docker-compose.yml";
     private readonly Action _dockerDown;
 
@@ -44,11 +23,16 @@ public class DatabaseFixture : IDisposable
         var docker = Fd.Hosts().Native().Host;
 
         var composeFile = GetDockerComposeFileLocation();
-        
+
         docker.ComposeUpCommand(new()
         {
+            AltProjectName = "TestStart",
             ComposeFiles = new List<string> { composeFile },
-            Services = new List<string> { "database" }
+            Services = new List<string> { "database" },
+            Env = new Dictionary<string, string>(new[]
+            {
+                User, Password
+            })
         });
         _dockerDown = () => docker.ComposeDown(removeVolumes: true, composeFile: composeFile);
     }
