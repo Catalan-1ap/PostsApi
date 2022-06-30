@@ -3,21 +3,29 @@ version: "3.9"
 services:
   api:
     depends_on:
-      - database
+      database:
+        condition: service_healthy
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "8000:80"
     environment:
-      POSTGRES_HOST: "localhost"
+      POSTGRES_HOST: database
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_PORT: "8001"
+      POSTGRES_PORT: 5432
   database:
     image: postgres:alpine
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 15s
+      retries: 10
     ports:
-      - "8001:5432"
+      - "5432:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}

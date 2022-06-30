@@ -42,7 +42,7 @@ public static class CreatePostCommand
         public Task<Post> Handle(CreatePost request, CancellationToken cancellationToken)
         {
             var (title, body) = request;
-            var newPost = new Post(title, body);
+            var newPost = new Post { Title = title, Body = body };
 
             _dbContext.Posts.Add(newPost);
 

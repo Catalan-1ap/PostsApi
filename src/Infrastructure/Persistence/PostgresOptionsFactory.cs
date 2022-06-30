@@ -15,7 +15,8 @@ internal static class PostgresOptionsFactory
             Host = dbOptions.Host,
             Port = dbOptions.Port,
             Username = dbOptions.Username,
-            Password = dbOptions.Password
+            Password = dbOptions.Password,
+            Pooling = true
         }.ToString();
 
         optionsBuilder.UseNpgsql(connectionString);

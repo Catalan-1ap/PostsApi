@@ -18,7 +18,7 @@ public class ApiFixture : DatabaseFixture
                 Environment.SetEnvironmentVariable(Host.Key, Host.Value);
                 Environment.SetEnvironmentVariable(User.Key, User.Value);
                 Environment.SetEnvironmentVariable(Password.Key, Password.Value);
-                Environment.SetEnvironmentVariable("POSTGRES_PORT", "8001");
+                Environment.SetEnvironmentVariable("POSTGRES_PORT", "5432");
             })
             .CreateClient();
 }

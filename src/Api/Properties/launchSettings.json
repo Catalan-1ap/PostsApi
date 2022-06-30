@@ -13,13 +13,12 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": false,
-      "applicationUrl": "http://localhost:8000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "POSTGRES_HOST": "localhost",
         "POSTGRES_USER": "sa",
         "POSTGRES_PASSWORD": "pass",
-        "POSTGRES_PORT": "8001"
+        "POSTGRES_PORT": "5432"
       }
     },
     "IIS Express": {

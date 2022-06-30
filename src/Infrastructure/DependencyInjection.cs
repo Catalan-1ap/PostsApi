@@ -24,9 +24,7 @@ public static class DependencyInjection
 
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        // Wait for connection
-        // TODO: Remove or refactor
-        while (await context.Database.CanConnectAsync() == false) { }
+        // if you fall with exception here - visit (https://github.com/npgsql/npgsql/issues/3955) and install certiicates
         await context.Database.MigrateAsync();
     }
 }

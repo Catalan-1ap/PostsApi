@@ -23,9 +23,9 @@ public sealed class PostController : BaseController
     public async Task<ActionResult<Post>> GetById([FromRoute] Guid id)
     {
         var request = new GetByIdQuery.GetById(id);
-
+        
         var response = await _mediator.Send(request);
-
+        
         return Ok(response);
     }
 

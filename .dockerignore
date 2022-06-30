@@ -2,7 +2,6 @@
 **/.env
 **/.git
 **/.gitignore
-**/.editorconfig
 **/.project
 **/.settings
 **/.toolstarget
@@ -24,4 +23,3 @@
 **/values.dev.yaml
 LICENSE
 README.md
-TODO

@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Api.Filters;
 using Api.Installers;
 using Application;
@@ -13,24 +12,19 @@ builder.Services
     })
     .ConfigureApiBehaviorOptions(x =>
     {
+        x.SuppressModelStateInvalidFilter = true;
         x.SuppressInferBindingSourcesForParameters = true;
         x.SuppressMapClientErrors = true;
-    })
-    .AddJsonOptions(x =>
-    {
-        x.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
     });
 builder.Services.AddApplication();
-
-builder.Services.InstallSwaggerService();
 builder.Services.InstallInfrastructureService();
+builder.Services.InstallSwaggerService();
 
 var app = builder.Build();
 
-app.InstallSwagger();
 await app.InstallInfrastructure();
+app.InstallSwagger();
 
 app.UseAuthorization();
 app.MapControllers();
-
 app.Run();

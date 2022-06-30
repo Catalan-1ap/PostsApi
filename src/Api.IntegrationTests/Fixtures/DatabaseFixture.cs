@@ -15,6 +15,7 @@ public class DatabaseFixture : IDisposable
     protected static readonly KeyValuePair<string, string> User = new("POSTGRES_USER", "sa");
     protected static readonly KeyValuePair<string, string> Password = new("POSTGRES_PASSWORD", "pass");
     private const string DockerComposeFileName = "docker-compose.yml";
+    private const string DockerName = "IntegrationTest";
     private readonly Action _dockerDown;
 
 
@@ -23,10 +24,10 @@ public class DatabaseFixture : IDisposable
         var docker = Fd.Hosts().Native().Host;
 
         var composeFile = GetDockerComposeFileLocation();
-
+        
         docker.ComposeUpCommand(new()
         {
-            AltProjectName = "TestStart",
+            AltProjectName = DockerName,
             ComposeFiles = new List<string> { composeFile },
             Services = new List<string> { "database" },
             Env = new Dictionary<string, string>(new[]
@@ -34,14 +35,15 @@ public class DatabaseFixture : IDisposable
                 User, Password
             })
         });
-        _dockerDown = () => docker.ComposeDown(removeVolumes: true, composeFile: composeFile);
+        _dockerDown = () => docker.ComposeDown(
+            altProjectName: DockerName,
+            removeVolumes: true,
+            composeFile: composeFile);
     }
 
 
     public void Dispose()
     {
-        GC.SuppressFinalize(this);
-
         _dockerDown();
     }
 
