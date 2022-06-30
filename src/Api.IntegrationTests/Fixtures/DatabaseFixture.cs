@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using Ductus.FluentDocker;
-using Ductus.FluentDocker.Commands;
+using Ductus.FluentDocker.Builders;
+using Ductus.FluentDocker.Services;
 
 
 namespace Api.IntegrationTests.Fixtures;
@@ -14,56 +13,27 @@ public class DatabaseFixture : IDisposable
     protected static readonly KeyValuePair<string, string> Host = new("POSTGRES_HOST", "localhost");
     protected static readonly KeyValuePair<string, string> User = new("POSTGRES_USER", "sa");
     protected static readonly KeyValuePair<string, string> Password = new("POSTGRES_PASSWORD", "pass");
-    private const string DockerComposeFileName = "docker-compose.yml";
-    private const string DockerName = "IntegrationTest";
-    private readonly Action _dockerDown;
+    private readonly IContainerService _container;
 
 
-    public DatabaseFixture()
-    {
-        var docker = Fd.Hosts().Native().Host;
-
-        var composeFile = GetDockerComposeFileLocation();
-        
-        docker.ComposeUpCommand(new()
-        {
-            AltProjectName = DockerName,
-            ComposeFiles = new List<string> { composeFile },
-            Services = new List<string> { "database" },
-            Env = new Dictionary<string, string>(new[]
-            {
-                User, Password
-            })
-        });
-        _dockerDown = () => docker.ComposeDown(
-            altProjectName: DockerName,
-            removeVolumes: true,
-            composeFile: composeFile);
-    }
+    public DatabaseFixture() =>
+        _container = new Builder()
+            .UseContainer()
+            .UseImage("postgres:alpine")
+            .ExposePort(5432, 5432)
+            .WithEnvironment(ConvertKVPToEnvPairs(Host, User, Password))
+            .UseHealthCheck($"\"pg_isready -U {User.Value}\"", "10s", "5s", retries: 5)
+            .WaitForHealthy()
+            .Build()
+            .Start();
 
 
     public void Dispose()
     {
-        _dockerDown();
+        _container.Dispose();
     }
 
 
-    private string GetDockerComposeFileLocation()
-    {
-        var compose = (string?)null;
-
-        for (var current = new DirectoryInfo(Directory.GetCurrentDirectory());
-             compose is null;
-             current = current.Parent!)
-        {
-            var isComposeFolder = current
-                .EnumerateFiles()
-                .Any(fileInfo => fileInfo.Name.Equals(DockerComposeFileName, StringComparison.Ordinal));
-
-            if (isComposeFolder)
-                compose = Path.Combine(current!.FullName, DockerComposeFileName);
-        }
-
-        return compose;
-    }
+    private static string[] ConvertKVPToEnvPairs(params KeyValuePair<string, string>[] pairs) =>
+        pairs.Select(pair => $"{pair.Key}={pair.Value}").ToArray();
 }
