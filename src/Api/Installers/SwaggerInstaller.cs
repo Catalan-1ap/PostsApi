@@ -2,6 +2,7 @@
 using FluentValidation;
 using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.OpenApi.Models;
 
 
 namespace Api.Installers;
@@ -9,29 +10,49 @@ namespace Api.Installers;
 
 public static class SwaggerInstaller
 {
-    public static void InstallSwaggerService(this IServiceCollection services)
+    public static void InstallSwagger(this IServiceCollection services)
     {
         services.AddSwaggerGen(x =>
         {
             x.SwaggerDoc("v1",
                 new()
                 {
-                    Title = "PostsApi", Version = "v1"
+                    Title = "PostsApi",
+                    Version = "v1"
                 });
+
+            x.AddSecurityDefinition("Bearer",
+                new()
+                {
+                    In = ParameterLocation.Header,
+                    Description = "JSON Web Token to access resources. Example: Bearer {token}",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey
+                });
+
+            x.AddSecurityRequirement(new()
+            {
+                {
+                    new()
+                    {
+                        Reference = new() { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+                    },
+                    new[] { string.Empty }
+                }
+            });
 
             var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             x.IncludeXmlComments(
                 Path.Combine(AppContext.BaseDirectory, xmlFilename),
                 includeControllerXmlComments: true
             );
-            x.EnableAnnotations();
         });
         services.TryAddTransient<IValidatorFactory, ServiceProviderValidatorFactory>();
         services.AddFluentValidationRulesToSwagger();
     }
 
 
-    public static void InstallSwagger(this WebApplication app)
+    public static void InitializeSwagger(this WebApplication app)
     {
         app.UseSwagger();
         app.UseSwaggerUI(x =>

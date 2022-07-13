@@ -8,14 +8,14 @@ namespace Infrastructure.Persistence;
 
 internal static class PostgresOptionsFactory
 {
-    public static Action<DbContextOptionsBuilder> Make(DbOptions dbOptions) => optionsBuilder =>
+    public static Action<DbContextOptionsBuilder> Make(PostgresOptions postgresOptions) => optionsBuilder =>
     {
         var connectionString = new NpgsqlConnectionStringBuilder
         {
-            Host = dbOptions.Host,
-            Port = dbOptions.Port,
-            Username = dbOptions.Username,
-            Password = dbOptions.Password,
+            Host = postgresOptions.Host,
+            Port = postgresOptions.Port,
+            Username = postgresOptions.Username,
+            Password = postgresOptions.Password,
             Pooling = true
         }.ToString();
 

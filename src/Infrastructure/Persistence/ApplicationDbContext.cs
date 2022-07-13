@@ -1,17 +1,19 @@
 ﻿using Application.Interfaces;
 using Domain;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 
 namespace Infrastructure.Persistence;
 
 
-internal sealed class ApplicationDbContext : DbContext, IApplicationDbContext
+internal sealed class ApplicationDbContext : IdentityDbContext<User>, IApplicationDbContext
 {
-    public DbSet<Post> Posts { get; set; } = null!;
 
 
     public ApplicationDbContext(DbContextOptions options) : base(options) { }
+
+    public DbSet<Post> Posts { get; set; } = null!;
 
 
     public new async Task SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -22,8 +24,8 @@ internal sealed class ApplicationDbContext : DbContext, IApplicationDbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
-
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
     }
 }

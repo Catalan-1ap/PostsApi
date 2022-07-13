@@ -27,4 +27,8 @@
         <ProjectReference Include="..\Api\Api.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <Folder Include="Tests"/>
+    </ItemGroup>
+
 </Project>

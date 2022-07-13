@@ -1,8 +1,8 @@
 ﻿using Api.Common;
-using Application.Features.CreatePost;
-using Application.Features.GetById;
+using Application.Features;
 using Domain;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -22,17 +22,22 @@ public sealed class PostController : BaseController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<Post>> GetById([FromRoute] Guid id)
     {
-        var request = new GetByIdQuery.GetById(id);
-        
+        var request = new GetPostByIdRequest(id);
+
         var response = await _mediator.Send(request);
-        
+
         return Ok(response);
     }
 
 
+    // TODO: attach user to post
+    /// <response code="400">Validation Error</response>
+    [Authorize]
     [HttpPost(Routes.Posts.Create)]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<ActionResult<Post>> Create([FromBody] CreatePostCommand.CreatePost request)
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<Post>> Create([FromBody] CreatePostRequest request)
     {
         var response = await _mediator.Send(request);
 

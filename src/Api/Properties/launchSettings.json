@@ -13,12 +13,16 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": false,
+      "applicationUrl": "https://localhost:5001;http://localhost:5000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "POSTGRES_HOST": "localhost",
         "POSTGRES_USER": "sa",
         "POSTGRES_PASSWORD": "pass",
-        "POSTGRES_PORT": "5432"
+        "POSTGRES_PORT": "5432",
+        "JWT_SECRET": "20c3ab7f-fbea-42bf-b93c-65ad1d7c0466",
+        "JWT_ISSUER": "PostsAPI",
+        "JWT_AUDIENCE": "PostsAPIUser"
       }
     },
     "IIS Express": {

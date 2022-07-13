@@ -1,4 +1,5 @@
-using Api.Filters;
+using System.Text.Json;
+using Api.Common;
 using Api.Installers;
 using Application;
 
@@ -6,25 +7,36 @@ using Application;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-    .AddControllers(x =>
-    {
-        x.Filters.Add<ExceptionFilter>();
-    })
+    .AddControllers()
     .ConfigureApiBehaviorOptions(x =>
     {
         x.SuppressModelStateInvalidFilter = true;
         x.SuppressInferBindingSourcesForParameters = true;
         x.SuppressMapClientErrors = true;
+    })
+    .AddJsonOptions(x =>
+    {
+        x.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
     });
 builder.Services.AddApplication();
-builder.Services.InstallInfrastructureService();
-builder.Services.InstallSwaggerService();
+builder.Services.InstallInfrastructure();
+builder.Services.InstallSwagger();
+builder.Services.InstallJwt();
 
 var app = builder.Build();
 
-await app.InstallInfrastructure();
-app.InstallSwagger();
+await app.InitializeInfrastructure();
+app.InitializeSwagger();
 
+app.UseMiddleware<ExceptionMiddleware>();
+app.UseHttpsRedirection();
+app.UseRouting();
+
+app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllers();
+
+app.UseEndpoints(x =>
+{
+    x.MapControllers();
+});
 app.Run();
