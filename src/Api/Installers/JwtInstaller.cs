@@ -1,7 +1,8 @@
 ﻿using System.Text;
 using Api.Common;
-using Application.Options;
-using Infrastructure.Options;
+using Application.Interfaces;
+using Application.Settings;
+using Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -11,11 +12,33 @@ namespace Api.Installers;
 
 public static class JwtInstaller
 {
-    public static void InstallJwt(this IServiceCollection services)
-    {
-        var (jwtOptions, key) = GetJwtOptions();
 
-        services.AddSingleton<IJwtOptions>(jwtOptions);
+
+    public static void InstallJwt(this IServiceCollection services, ConfigurationManager configuration)
+    {
+        var envs = new[]
+        {
+            "JWT_SECRET",
+            "JWT_ISSUER",
+            "JWT_AUDIENCE"
+        }.GetEnvironmentVariables();
+        var secret = envs["JWT_SECRET"];
+        var issuer = envs["JWT_ISSUER"];
+        var audience = envs["JWT_AUDIENCE"];
+        var keyBytes = Encoding.ASCII.GetBytes(secret);
+        var securityKey = new SymmetricSecurityKey(keyBytes);
+        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
+        var expiresOptions = configuration.GetSection(nameof(Expires)).Get<Expires>();
+
+        services.AddSingleton<IJwtSettings>(provider =>
+            new JwtSettings(provider.GetRequiredService<IDateTimeService>())
+            {
+                Issuer = issuer,
+                Audience = audience,
+                Credentials = credentials,
+                ExpiresForAccessTokenInput = TimeSpan.Parse(expiresOptions.AccessToken),
+                ExpiresForRefreshTokenInput = TimeSpan.Parse(expiresOptions.RefreshToken)
+            });
 
         services.AddAuthentication(x =>
             {
@@ -31,39 +54,18 @@ public static class JwtInstaller
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtOptions.Issuer,
-                    ValidAudience = jwtOptions.Audience,
-                    IssuerSigningKey = key,
+                    ValidIssuer = issuer,
+                    ValidAudience = audience,
+                    IssuerSigningKey = securityKey,
                     ClockSkew = TimeSpan.Zero
                 };
             });
     }
 
 
-    private static (JwtOptions jwtOptions, SecurityKey key) GetJwtOptions()
+    private sealed class Expires
     {
-        var envs = new[]
-        {
-            "JWT_SECRET",
-            "JWT_ISSUER",
-            "JWT_AUDIENCE"
-        }.GetEnvironmentVariables();
-
-        var secret = envs["JWT_SECRET"];
-        var issuer = envs["JWT_ISSUER"];
-        var audience = envs["JWT_AUDIENCE"];
-        var (key, credentials) = GetSigningDetails(secret);
-
-        return (new(issuer, audience, credentials), key);
-    }
-
-
-    private static (SecurityKey key, SigningCredentials credentials) GetSigningDetails(string secret)
-    {
-        var keyBytes = Encoding.ASCII.GetBytes(secret);
-        var securityKey = new SymmetricSecurityKey(keyBytes);
-        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
-
-        return (securityKey, credentials);
+        public string AccessToken { get; init; }
+        public string RefreshToken { get; init; }
     }
 }

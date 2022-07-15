@@ -21,5 +21,6 @@ public static class Routes
 
         public const string Register = $"{Root}/{Base}/register";
         public const string Login = $"{Root}/{Base}/login";
+        public const string Refresh = $"{Root}/{Base}/refresh";
     }
 }

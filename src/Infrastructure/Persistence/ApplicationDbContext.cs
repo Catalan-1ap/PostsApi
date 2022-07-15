@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces;
 using Domain;
+using Domain.NonDomainEntities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,11 +10,11 @@ namespace Infrastructure.Persistence;
 
 internal sealed class ApplicationDbContext : IdentityDbContext<User>, IApplicationDbContext
 {
+    public DbSet<Post> Posts { get; set; } = null!;
+    public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
 
 
     public ApplicationDbContext(DbContextOptions options) : base(options) { }
-
-    public DbSet<Post> Posts { get; set; } = null!;
 
 
     public new async Task SaveChangesAsync(CancellationToken cancellationToken = default)

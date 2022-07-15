@@ -1,4 +1,5 @@
-﻿using Application.Exceptions;
+﻿using Api.Responses;
+using Application.Exceptions;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,10 +32,10 @@ public class ExceptionMiddleware
     {
         IActionResult result = exception switch
         {
-            NotFoundException e => new NotFoundObjectResult(e.Message),
-            ValidationException e => new BadRequestObjectResult(e.ConvertValidationExceptionToValidationError()),
-            SeveralErrorsException e => new BadRequestObjectResult(new { e.Errors }),
-            BusinessException e => new BadRequestObjectResult(e.Message),
+            NotFoundException e => new NotFoundObjectResult(new SingleErrorResponse(e.Message)),
+            ValidationException e => new BadRequestObjectResult(e.ConvertValidationExceptionToValidationErrorResponse()),
+            SeveralErrorsException e => new BadRequestObjectResult(new SeveralErrorsResponse(e.Errors)),
+            BusinessException e => new BadRequestObjectResult(new SingleErrorResponse(e.Message)),
             _ => new StatusCodeResult(StatusCodes.Status500InternalServerError)
         };
 

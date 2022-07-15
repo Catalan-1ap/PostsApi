@@ -1,16 +1,13 @@
 ﻿using Application.Interfaces;
-using Application.PipelineBehaviours;
 using Application.StorageContracts;
 using Domain;
 using FluentValidation;
 using MediatR;
-using MediatR.Extensions.AttributedBehaviors;
 
 
 namespace Application.Features;
 
 
-[MediatRBehavior(typeof(SaveChangesPipelineBehaviour<CreatePostRequest, Post>))]
 public sealed record CreatePostRequest(string Title, string Body) : IRequest<Post>;
 
 

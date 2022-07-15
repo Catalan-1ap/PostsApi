@@ -18,7 +18,8 @@ public static class SwaggerInstaller
                 new()
                 {
                     Title = "PostsApi",
-                    Version = "v1"
+                    Version = "v1",
+                    Description = "Simple API for managing posts"
                 });
 
             x.AddSecurityDefinition("Bearer",
@@ -26,6 +27,7 @@ public static class SwaggerInstaller
                 {
                     In = ParameterLocation.Header,
                     Description = "JSON Web Token to access resources. Example: Bearer {token}",
+                    Scheme = "Bearer",
                     Name = "Authorization",
                     Type = SecuritySchemeType.ApiKey
                 });

@@ -1,5 +1,6 @@
 ﻿using Application.Exceptions;
 using Application.Interfaces;
+using Domain;
 using Microsoft.AspNetCore.Identity;
 
 
@@ -29,5 +30,21 @@ public sealed class IdentityService : IIdentityService
             throw new SeveralErrorsException(result.Errors.Select(x => x.Description));
 
         return id;
+    }
+
+
+    public async Task<IUser> Login(string email, string password)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+
+        if (user is null)
+            throw new NotFoundException(nameof(User), email);
+
+        var isPasswordAreValid = await _userManager.CheckPasswordAsync(user, password);
+
+        if (isPasswordAreValid == false)
+            throw new BusinessException("Email/Password combination is wrong");
+
+        return user;
     }
 }

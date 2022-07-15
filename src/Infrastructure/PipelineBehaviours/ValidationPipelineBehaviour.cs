@@ -2,10 +2,10 @@
 using MediatR;
 
 
-namespace Application.PipelineBehaviours;
+namespace Infrastructure.PipelineBehaviours;
 
 
-public sealed class ValidationPipelineBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+internal sealed class ValidationPipelineBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
 {
     private readonly IEnumerable<IValidator<TRequest>> _validators;

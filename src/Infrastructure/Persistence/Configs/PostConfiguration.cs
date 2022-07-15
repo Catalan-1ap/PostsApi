@@ -9,7 +9,6 @@ namespace Infrastructure.Persistence.Configs;
 
 internal sealed class PostConfiguration : IEntityTypeConfiguration<Post>
 {
-
     public void Configure(EntityTypeBuilder<Post> post)
     {
         post.Property(p => p.Title)

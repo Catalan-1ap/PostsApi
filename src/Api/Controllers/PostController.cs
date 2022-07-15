@@ -1,4 +1,5 @@
 ﻿using Api.Common;
+using Api.Responses;
 using Application.Features;
 using Domain;
 using MediatR;
@@ -19,7 +20,7 @@ public sealed class PostController : BaseController
 
     [HttpGet(Routes.Posts.GetById)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(SingleErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<Post>> GetById([FromRoute] Guid id)
     {
         var request = new GetPostByIdRequest(id);
@@ -35,7 +36,7 @@ public sealed class PostController : BaseController
     [Authorize]
     [HttpPost(Routes.Posts.Create)]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ValidationErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<Post>> Create([FromBody] CreatePostRequest request)
     {

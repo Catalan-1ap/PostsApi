@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using Api.Responses;
+using FluentValidation;
 
 
 namespace Api.Common;
@@ -28,7 +29,7 @@ public static class Extensions
     }
 
 
-    public static ValidationError ConvertValidationExceptionToValidationError(this ValidationException exception)
+    public static ValidationErrorResponse ConvertValidationExceptionToValidationErrorResponse(this ValidationException exception)
     {
         var errors = exception.Errors
             .GroupBy(f => f.PropertyName, f => f.ErrorMessage)

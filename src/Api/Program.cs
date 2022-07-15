@@ -21,7 +21,7 @@ builder.Services
 builder.Services.AddApplication();
 builder.Services.InstallInfrastructure();
 builder.Services.InstallSwagger();
-builder.Services.InstallJwt();
+builder.Services.InstallJwt(builder.Configuration);
 
 var app = builder.Build();
 

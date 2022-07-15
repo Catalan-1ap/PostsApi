@@ -1,7 +1,5 @@
-﻿using Application.PipelineBehaviours;
-using FluentValidation;
+﻿using FluentValidation;
 using MediatR;
-using MediatR.Extensions.AttributedBehaviors;
 using Microsoft.Extensions.DependencyInjection;
 
 
@@ -16,9 +14,5 @@ public static class DependencyInjection
         ValidatorOptions.Global.LanguageManager.Enabled = false;
 
         services.AddMediatR(typeof(DependencyInjection).Assembly);
-
-        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehaviour<,>));
-
-        services.AddMediatRAttributedBehaviors(typeof(DependencyInjection).Assembly);
     }
 }
