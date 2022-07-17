@@ -34,13 +34,14 @@ internal sealed class CreatePostHandler : IRequestHandler<CreatePostRequest, Pos
     public CreatePostHandler(IApplicationDbContext dbContext) => _dbContext = dbContext;
 
 
-    public Task<Post> Handle(CreatePostRequest request, CancellationToken cancellationToken)
+    public async Task<Post> Handle(CreatePostRequest request, CancellationToken cancellationToken)
     {
         var (title, body) = request;
-        var newPost = new Post { Title = title, Body = body };
+
+        var newPost = new Post(title, body);
 
         _dbContext.Posts.Add(newPost);
 
-        return Task.FromResult(newPost);
+        return newPost;
     }
 }

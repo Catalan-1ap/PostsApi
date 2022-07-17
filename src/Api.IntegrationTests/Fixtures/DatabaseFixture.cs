@@ -21,7 +21,7 @@ public class DatabaseFixture : IDisposable
             .UseContainer()
             .UseImage("postgres:alpine")
             .ExposePort(5432, 5432)
-            .WithEnvironment(ConvertKVPToEnvPairs(Host, User, Password))
+            .WithEnvironment(ConvertKvpToEnvPairs(Host, User, Password))
             .UseHealthCheck($"\"pg_isready -U {User.Value}\"", "10s", "5s", retries: 5)
             .WaitForHealthy()
             .Build()
@@ -34,6 +34,6 @@ public class DatabaseFixture : IDisposable
     }
 
 
-    private static string[] ConvertKVPToEnvPairs(params KeyValuePair<string, string>[] pairs) =>
+    private static string[] ConvertKvpToEnvPairs(params KeyValuePair<string, string>[] pairs) =>
         pairs.Select(pair => $"{pair.Key}={pair.Value}").ToArray();
 }

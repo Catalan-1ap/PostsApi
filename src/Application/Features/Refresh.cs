@@ -14,15 +14,10 @@ public sealed record RefreshResponse(JwtTokens Tokens);
 
 internal sealed class RefreshHandler : IRequestHandler<RefreshRequest, RefreshResponse>
 {
-    private readonly IIdentityService _identityService;
     private readonly IJwtService _jwtService;
 
 
-    public RefreshHandler(IIdentityService identityService, IJwtService jwtService)
-    {
-        _identityService = identityService;
-        _jwtService = jwtService;
-    }
+    public RefreshHandler(IJwtService jwtService) => _jwtService = jwtService;
 
 
     public async Task<RefreshResponse> Handle(RefreshRequest request, CancellationToken cancellationToken)

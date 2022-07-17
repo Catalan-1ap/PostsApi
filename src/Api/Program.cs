@@ -1,7 +1,9 @@
 using System.Text.Json;
 using Api.Common;
 using Api.Installers;
+using Api.Services;
 using Application;
+using Application.Interfaces;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +24,7 @@ builder.Services.AddApplication();
 builder.Services.InstallInfrastructure();
 builder.Services.InstallSwagger();
 builder.Services.InstallJwt(builder.Configuration);
+builder.Services.AddSingleton<ICurrentUserService, CurrentUserService>();
 
 var app = builder.Build();
 

@@ -5,6 +5,7 @@ using Application.Interfaces;
 using Application.Models;
 using Application.Settings;
 using Domain.NonDomainEntities;
+using Infrastructure.Common;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -13,7 +14,6 @@ namespace Infrastructure.Services;
 
 public sealed class JwtService : IJwtService
 {
-    private const string IdClaimType = "id";
     private readonly IDateTimeService _dateTimeService;
     private readonly IApplicationDbContext _dbContext;
     private readonly IJwtSettings _jwtOptions;
@@ -89,7 +89,7 @@ public sealed class JwtService : IJwtService
     {
         return new Claim[]
         {
-            new(IdClaimType, userId),
+            new(Claims.Id, userId),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
     }

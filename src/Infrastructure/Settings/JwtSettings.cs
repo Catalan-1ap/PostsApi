@@ -10,12 +10,12 @@ public sealed class JwtSettings : IJwtSettings
 {
     private readonly IDateTimeService _dateTimeService;
 
-    public TimeSpan ExpiresForAccessTokenInput { get; set; }
-    public TimeSpan ExpiresForRefreshTokenInput { get; set; }
+    public TimeSpan ExpiresForAccessTokenInput { get; init; }
+    public TimeSpan ExpiresForRefreshTokenInput { get; init; }
 
-    public string Issuer { get; set; }
-    public string Audience { get; set; }
-    public SigningCredentials Credentials { get; set; }
+    public string? Issuer { get; init; }
+    public string? Audience { get; init; }
+    public SigningCredentials? Credentials { get; init; }
     public DateTime ExpiresForAccessToken => _dateTimeService.UtcNow.Add(ExpiresForAccessTokenInput);
     public DateTime ExpiresForRefreshToken => _dateTimeService.UtcNow.Add(ExpiresForRefreshTokenInput);
 

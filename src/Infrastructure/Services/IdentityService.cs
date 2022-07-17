@@ -9,10 +9,15 @@ namespace Infrastructure.Services;
 
 public sealed class IdentityService : IIdentityService
 {
+    private readonly ICurrentUserService _currentUserService;
     private readonly UserManager<User> _userManager;
 
 
-    public IdentityService(UserManager<User> userManager) => _userManager = userManager;
+    public IdentityService(UserManager<User> userManager, ICurrentUserService currentUserService)
+    {
+        _userManager = userManager;
+        _currentUserService = currentUserService;
+    }
 
 
     public async Task<string> Register(string userName, string email, string password)
@@ -46,5 +51,13 @@ public sealed class IdentityService : IIdentityService
             throw new BusinessException("Email/Password combination is wrong");
 
         return user;
+    }
+
+
+    public async Task<IUser> CurrentUser()
+    {
+        var userId = _currentUserService.UserId;
+
+        return await _userManager.FindByIdAsync(userId);
     }
 }

@@ -6,11 +6,11 @@ namespace Application.Settings;
 
 public interface IJwtSettings
 {
-    string Issuer { get; }
+    string? Issuer { get; }
 
-    string Audience { get; }
+    string? Audience { get; }
 
-    SigningCredentials Credentials { get; }
+    SigningCredentials? Credentials { get; }
 
     DateTime ExpiresForAccessToken { get; }
 

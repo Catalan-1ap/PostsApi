@@ -65,7 +65,7 @@ public static class JwtInstaller
 
     private sealed class Expires
     {
-        public string AccessToken { get; init; }
-        public string RefreshToken { get; init; }
+        public string? AccessToken { get; init; }
+        public string? RefreshToken { get; init; }
     }
 }
