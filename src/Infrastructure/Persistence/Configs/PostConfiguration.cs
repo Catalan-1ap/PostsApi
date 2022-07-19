@@ -1,5 +1,5 @@
-﻿using Application.StorageContracts;
-using Domain;
+﻿using Core.Entities;
+using Core.StorageContracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -18,5 +18,10 @@ internal sealed class PostConfiguration : IEntityTypeConfiguration<Post>
         post.Property(p => p.Body)
             .IsRequired()
             .HasMaxLength(PostStorageContract.BodyMaxLength);
+
+        post.HasOne(x => x.Owner)
+            .WithMany(x => x.Posts)
+            .HasForeignKey(x => x.OwnerId)
+            .IsRequired();
     }
 }

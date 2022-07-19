@@ -1,5 +1,5 @@
-﻿using Application.Interfaces;
-using Application.Settings;
+﻿using Core.Interfaces;
+using Core.Settings;
 using Microsoft.IdentityModel.Tokens;
 
 

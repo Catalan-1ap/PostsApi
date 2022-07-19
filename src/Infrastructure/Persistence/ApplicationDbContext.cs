@@ -1,6 +1,5 @@
-﻿using Application.Interfaces;
-using Domain;
-using Domain.NonDomainEntities;
+﻿using Core.Entities;
+using Core.Interfaces;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Infrastructure.Persistence;
 
 
-internal sealed class ApplicationDbContext : IdentityDbContext<User>, IApplicationDbContext
+internal sealed class ApplicationDbContext : IdentityDbContext<User, Role, string>, IApplicationDbContext
 {
     public DbSet<Post> Posts => Set<Post>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();

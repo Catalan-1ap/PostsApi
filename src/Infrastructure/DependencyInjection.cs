@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Core.Entities;
+using Core.Interfaces;
 using Infrastructure.Options;
 using Infrastructure.Persistence;
 using Infrastructure.PipelineBehaviours;
@@ -17,7 +18,7 @@ public static class DependencyInjection
     public static void AddInfrastructure(this IServiceCollection services, PostgresOptions postgresOptions)
     {
         services.AddDbContext<ApplicationDbContext>(PostgresOptionsFactory.Make(postgresOptions));
-        services.AddIdentity<User, IdentityRole>(x =>
+        services.AddIdentity<User, Role>(x =>
             {
                 x.Password.RequireDigit = true;
                 x.Password.RequireLowercase = false;

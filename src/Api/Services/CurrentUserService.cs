@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using Application.Interfaces;
+using Core.Interfaces;
 using Infrastructure.Common;
 
 
@@ -11,7 +11,7 @@ public sealed class CurrentUserService : ICurrentUserService
     private readonly IHttpContextAccessor _httpContextAccessor;
 
 
-    public string? UserId => _httpContextAccessor.HttpContext?.User.FindFirstValue(Claims.Id);
+    public string UserId => _httpContextAccessor.HttpContext?.User.FindFirstValue(Claims.Id)!;
 
 
     public CurrentUserService(IHttpContextAccessor httpContextAccessor) => _httpContextAccessor = httpContextAccessor;

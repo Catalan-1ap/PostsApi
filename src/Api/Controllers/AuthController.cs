@@ -1,6 +1,6 @@
 ﻿using Api.Common;
 using Api.Responses;
-using Application.Features;
+using Core.Features;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

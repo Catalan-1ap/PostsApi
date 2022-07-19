@@ -1,9 +1,10 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Api.Common;
 using Api.Installers;
 using Api.Services;
-using Application;
-using Application.Interfaces;
+using Core;
+using Core.Interfaces;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +20,7 @@ builder.Services
     .AddJsonOptions(x =>
     {
         x.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+        x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
 builder.Services.AddApplication();
 builder.Services.InstallInfrastructure();

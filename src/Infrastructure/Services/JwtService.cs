@@ -1,10 +1,10 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Application.Exceptions;
-using Application.Interfaces;
-using Application.Models;
-using Application.Settings;
-using Domain.NonDomainEntities;
+using Core.Entities;
+using Core.Exceptions;
+using Core.Interfaces;
+using Core.Models;
+using Core.Settings;
 using Infrastructure.Common;
 using Microsoft.EntityFrameworkCore;
 

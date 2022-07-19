@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using Api.Common;
-using Application.Interfaces;
-using Application.Settings;
+using Core.Interfaces;
+using Core.Settings;
 using Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -12,8 +12,6 @@ namespace Api.Installers;
 
 public static class JwtInstaller
 {
-
-
     public static void InstallJwt(this IServiceCollection services, ConfigurationManager configuration)
     {
         var envs = new[]
@@ -36,8 +34,8 @@ public static class JwtInstaller
                 Issuer = issuer,
                 Audience = audience,
                 Credentials = credentials,
-                ExpiresForAccessTokenInput = TimeSpan.Parse(expiresOptions.AccessToken),
-                ExpiresForRefreshTokenInput = TimeSpan.Parse(expiresOptions.RefreshToken)
+                ExpiresForAccessTokenInput = TimeSpan.Parse(expiresOptions.AccessToken!),
+                ExpiresForRefreshTokenInput = TimeSpan.Parse(expiresOptions.RefreshToken!)
             });
 
         services.AddAuthentication(x =>

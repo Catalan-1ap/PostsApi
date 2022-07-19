@@ -1,6 +1,6 @@
-﻿using Application.Exceptions;
-using Application.Interfaces;
-using Domain;
+﻿using Core.Entities;
+using Core.Exceptions;
+using Core.Interfaces;
 using Microsoft.AspNetCore.Identity;
 
 
@@ -23,13 +23,9 @@ public sealed class IdentityService : IIdentityService
     public async Task<string> Register(string userName, string email, string password)
     {
         var id = Guid.NewGuid().ToString();
-        var result = await _userManager.CreateAsync(new()
-            {
-                Id = id,
-                Email = email,
-                UserName = userName
-            },
-            password);
+        var user = new User(id, userName, email);
+
+        var result = await _userManager.CreateAsync(user, password);
 
         if (result.Errors.Any())
             throw new SeveralErrorsException(result.Errors.Select(x => x.Description));
@@ -38,7 +34,7 @@ public sealed class IdentityService : IIdentityService
     }
 
 
-    public async Task<IUser> Login(string email, string password)
+    public async Task<User> Login(string email, string password)
     {
         var user = await _userManager.FindByEmailAsync(email);
 
@@ -51,13 +47,5 @@ public sealed class IdentityService : IIdentityService
             throw new BusinessException("Email/Password combination is wrong");
 
         return user;
-    }
-
-
-    public async Task<IUser> CurrentUser()
-    {
-        var userId = _currentUserService.UserId;
-
-        return await _userManager.FindByIdAsync(userId);
     }
 }

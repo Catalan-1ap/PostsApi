@@ -1,5 +1,5 @@
 ﻿using Api.Responses;
-using Application.Exceptions;
+using Core.Exceptions;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
