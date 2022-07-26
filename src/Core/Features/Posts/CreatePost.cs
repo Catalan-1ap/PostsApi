@@ -42,7 +42,7 @@ internal sealed class CreatePostHandler : IRequestHandler<CreatePostRequest, Cre
     }
 
 
-    public Task<CreatePostResponse> Handle(CreatePostRequest request, CancellationToken cancellationToken)
+    public async Task<CreatePostResponse> Handle(CreatePostRequest request, CancellationToken cancellationToken)
     {
         var (title, body) = request;
         var currentUser = _currentUserService.UserId;
@@ -53,9 +53,10 @@ internal sealed class CreatePostHandler : IRequestHandler<CreatePostRequest, Cre
         };
 
         _dbContext.Posts.Add(newPost);
+        await _dbContext.SaveChangesAsync(cancellationToken);
 
         var response = new CreatePostResponse(newPost.Id, newPost.Title, newPost.Body);
 
-        return Task.FromResult(response);
+        return response;
     }
 }
