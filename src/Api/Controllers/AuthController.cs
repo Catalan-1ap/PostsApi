@@ -1,6 +1,6 @@
 ﻿using Api.Common;
 using Api.Responses;
-using Core.Features;
+using Core.Features.Auth;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,7 +19,7 @@ public sealed class AuthController : BaseController
 
     /// <response code="400">Validation Error</response>
     [HttpPost(Routes.Auth.Register)]
-    [ProducesResponseType(typeof(SeveralErrorsResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ValidationErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<RegisterResponse>> Register([FromBody] RegisterRequest request)
     {

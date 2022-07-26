@@ -4,7 +4,7 @@ using FluentValidation;
 using MediatR;
 
 
-namespace Core.Features;
+namespace Core.Features.Auth;
 
 
 public sealed record RegisterRequest(string UserName, string Email, string Password) : IRequest<RegisterResponse>;
@@ -15,10 +15,32 @@ public sealed record RegisterResponse(JwtTokens Tokens);
 
 public sealed class RegisterRequestValidator : AbstractValidator<RegisterRequest>
 {
-    public RegisterRequestValidator()
+    private readonly IIdentityService _identityService;
+
+
+    public RegisterRequestValidator(IIdentityService identityService)
     {
-        RuleFor(x => x.Email).EmailAddress();
+        _identityService = identityService;
+
+        RuleFor(x => x.UserName)
+            .MustAsync(UniqueUsername).WithMessage("Must be unique");
+
+        RuleFor(x => x.Email)
+            .EmailAddress()
+            .MustAsync(UniqueEmail).WithMessage("Must be unique");
+
+        RuleFor(x => x.Password)
+            .NotEmptyWithMessage()
+            .MinimumLengthWithMessage(8);
     }
+
+
+    private async Task<bool> UniqueUsername(string userName, CancellationToken cancellationToken) =>
+        await _identityService.IsUsernameUnique(userName);
+
+
+    private async Task<bool> UniqueEmail(string email, CancellationToken cancellationToken) =>
+        await _identityService.IsEmailUnique(email);
 }
 
 

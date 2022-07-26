@@ -18,19 +18,10 @@ public static class DependencyInjection
     public static void AddInfrastructure(this IServiceCollection services, PostgresOptions postgresOptions)
     {
         services.AddDbContext<ApplicationDbContext>(PostgresOptionsFactory.Make(postgresOptions));
-        services.AddIdentity<User, Role>(x =>
-            {
-                x.Password.RequireDigit = true;
-                x.Password.RequireLowercase = false;
-                x.Password.RequireUppercase = false;
-                x.Password.RequiredUniqueChars = 0;
-                x.Password.RequireNonAlphanumeric = false;
-                x.Password.RequiredLength = 8;
-
-                x.User.RequireUniqueEmail = true;
-            })
+        services.AddIdentity<User, Role>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
+        services.RemoveIdentityValidation();
 
         services.AddSingleton<IDateTimeService, DateTimeService>();
         services.AddScoped<IIdentityService, IdentityService>();
@@ -50,5 +41,15 @@ public static class DependencyInjection
 
         // if you fall with exception here - visit (https://github.com/npgsql/npgsql/issues/3955) and install certificates
         await context.Database.MigrateAsync();
+    }
+
+
+    private static void RemoveIdentityValidation(this IServiceCollection services)
+    {
+        var userValidator = services.Single(descriptor => descriptor.ServiceType == typeof(IUserValidator<User>));
+        var passwordValidator = services.Single(descriptor => descriptor.ServiceType == typeof(IPasswordValidator<User>));
+
+        services.Remove(userValidator);
+        services.Remove(passwordValidator);
     }
 }

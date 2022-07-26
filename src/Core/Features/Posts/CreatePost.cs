@@ -5,7 +5,7 @@ using FluentValidation;
 using MediatR;
 
 
-namespace Core.Features;
+namespace Core.Features.Posts;
 
 
 public sealed record CreatePostRequest(string Title, string Body) : IRequest<CreatePostResponse>;
@@ -19,11 +19,11 @@ public sealed class CreatePostValidator : AbstractValidator<CreatePostRequest>
     public CreatePostValidator()
     {
         RuleFor(x => x.Title)
-            .NotEmpty()
+            .NotEmptyWithMessage()
             .MaximumLengthWithMessage(PostStorageContract.TitleMaxLength);
 
         RuleFor(x => x.Body)
-            .NotEmpty()
+            .NotEmptyWithMessage()
             .MaximumLengthWithMessage(PostStorageContract.BodyMaxLength);
     }
 }

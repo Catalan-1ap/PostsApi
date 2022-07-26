@@ -1,25 +1,15 @@
 ﻿using Core.Interfaces;
 using Core.Models;
-using FluentValidation;
 using MediatR;
 
 
-namespace Core.Features;
+namespace Core.Features.Auth;
 
 
 public sealed record LoginRequest(string Email, string Password) : IRequest<LoginResponse>;
 
 
 public sealed record LoginResponse(JwtTokens Tokens);
-
-
-public sealed class LoginRequestValidator : AbstractValidator<LoginRequest>
-{
-    public LoginRequestValidator()
-    {
-        RuleFor(x => x.Email).EmailAddress();
-    }
-}
 
 
 internal sealed class LoginHandler : IRequestHandler<LoginRequest, LoginResponse>

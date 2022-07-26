@@ -3,7 +3,7 @@ using Core.Models;
 using MediatR;
 
 
-namespace Core.Features;
+namespace Core.Features.Auth;
 
 
 public sealed record RefreshRequest(string RefreshToken) : IRequest<RefreshResponse>;

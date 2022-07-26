@@ -48,4 +48,20 @@ public sealed class IdentityService : IIdentityService
 
         return user;
     }
+
+
+    public async Task<bool> IsUsernameUnique(string userName)
+    {
+        var user = await _userManager.FindByNameAsync(userName);
+
+        return user is null;
+    }
+
+
+    public async Task<bool> IsEmailUnique(string email)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+
+        return user is null;
+    }
 }

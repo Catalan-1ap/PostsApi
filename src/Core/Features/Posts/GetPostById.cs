@@ -5,7 +5,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 
-namespace Core.Features;
+namespace Core.Features.Posts;
 
 
 public sealed record GetPostByIdRequest(Guid Id) : IRequest<GetPostByIdResponse>;

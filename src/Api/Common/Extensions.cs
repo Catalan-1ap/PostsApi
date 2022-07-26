@@ -29,7 +29,7 @@ public static class Extensions
     }
 
 
-    public static ValidationErrorResponse ConvertValidationExceptionToValidationErrorResponse(this ValidationException exception)
+    public static ValidationErrorResponse ToValidationErrorResponse(this ValidationException exception)
     {
         var errors = exception.Errors
             .GroupBy(f => f.PropertyName, f => f.ErrorMessage)

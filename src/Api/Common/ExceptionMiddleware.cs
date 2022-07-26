@@ -33,7 +33,7 @@ public class ExceptionMiddleware
         IActionResult result = exception switch
         {
             NotFoundException e => new NotFoundObjectResult(new SingleErrorResponse(e.Message)),
-            ValidationException e => new BadRequestObjectResult(e.ConvertValidationExceptionToValidationErrorResponse()),
+            ValidationException e => new BadRequestObjectResult(e.ToValidationErrorResponse()),
             SeveralErrorsException e => new BadRequestObjectResult(new SeveralErrorsResponse(e.Errors)),
             BusinessException e => new BadRequestObjectResult(new SingleErrorResponse(e.Message)),
             _ => new StatusCodeResult(StatusCodes.Status500InternalServerError)
