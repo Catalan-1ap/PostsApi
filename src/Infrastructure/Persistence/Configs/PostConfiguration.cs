@@ -11,11 +11,13 @@ internal sealed class PostConfiguration : IEntityTypeConfiguration<Post>
 {
     public void Configure(EntityTypeBuilder<Post> post)
     {
-        post.Property(p => p.Title)
+        post.HasKey(x => x.Id);
+
+        post.Property(x => x.Title)
             .IsRequired()
             .HasMaxLength(PostStorageContract.TitleMaxLength);
 
-        post.Property(p => p.Body)
+        post.Property(x => x.Body)
             .IsRequired()
             .HasMaxLength(PostStorageContract.BodyMaxLength);
 

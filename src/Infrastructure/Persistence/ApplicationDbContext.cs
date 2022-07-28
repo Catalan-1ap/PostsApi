@@ -16,12 +16,6 @@ internal sealed class ApplicationDbContext : IdentityDbContext<User, Role, strin
     public ApplicationDbContext(DbContextOptions options) : base(options) { }
 
 
-    public new async Task SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        await base.SaveChangesAsync(cancellationToken);
-    }
-
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

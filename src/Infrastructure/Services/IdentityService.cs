@@ -23,7 +23,12 @@ public sealed class IdentityService : IIdentityService
     public async Task<string> Register(string userName, string email, string password)
     {
         var id = Guid.NewGuid().ToString();
-        var user = new User(id, userName, email);
+        var user = new User
+        {
+            Id = id,
+            UserName = userName,
+            Email = email
+        };
 
         var result = await _userManager.CreateAsync(user, password);
 
@@ -39,7 +44,7 @@ public sealed class IdentityService : IIdentityService
         var user = await _userManager.FindByEmailAsync(email);
 
         if (user is null)
-            throw new NotFoundException(nameof(User), email);
+            throw NotFoundException.Make(nameof(User), email);
 
         var isPasswordAreValid = await _userManager.CheckPasswordAsync(user, password);
 

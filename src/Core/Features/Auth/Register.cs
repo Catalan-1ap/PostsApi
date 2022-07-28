@@ -44,7 +44,7 @@ public sealed class RegisterRequestValidator : AbstractValidator<RegisterRequest
 }
 
 
-internal sealed class RegisterHandler : IRequestHandler<RegisterRequest, RegisterResponse>
+public sealed class RegisterHandler : IRequestHandler<RegisterRequest, RegisterResponse>
 {
     private readonly IIdentityService _identityService;
     private readonly IJwtService _jwtService;

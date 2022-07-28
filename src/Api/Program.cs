@@ -9,6 +9,8 @@ using Core.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddEnvironmentVariables("API_");
+
 builder.Services
     .AddControllers()
     .ConfigureApiBehaviorOptions(x =>
@@ -23,7 +25,8 @@ builder.Services
         x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
 builder.Services.AddApplication();
-builder.Services.InstallInfrastructure();
+
+builder.Services.InstallInfrastructure(builder.Configuration);
 builder.Services.InstallSwagger();
 builder.Services.InstallJwt(builder.Configuration);
 builder.Services.AddSingleton<ICurrentUserService, CurrentUserService>();

@@ -11,13 +11,13 @@ services:
     ports:
       - "8000:80"
     environment:
-      POSTGRES_HOST: database
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_PORT: 5432
-      JWT_SECRET: ${JWT_SECRET}
-      JWT_ISSUER: ${JWT_ISSUER}
-      JWT_AUDIENCE: ${JWT_AUDIENCE}
+      API_POSTGRES__HOST: database
+      API_POSTGRES__USER: ${API_POSTGRES__USER}
+      API_POSTGRES__PASSWORD: ${API_POSTGRES__PASSWORD}
+      API_POSTGRES__PORT: 5432
+      API_JWT__SECRET: ${API_JWT__SECRET}
+      API_JWT__ISSUER: ${API_JWT__ISSUER}
+      API_JWT__AUDIENCE: ${API_JWT__AUDIENCE}
   database:
     image: postgres:alpine
     volumes:

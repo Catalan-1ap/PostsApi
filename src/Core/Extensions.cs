@@ -4,7 +4,7 @@
 namespace Core;
 
 
-public static class Extensions
+internal static class Extensions
 {
     public static IRuleBuilderOptions<T, string> MaximumLengthWithMessage<T>(
         this IRuleBuilder<T, string> builder,

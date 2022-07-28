@@ -12,7 +12,7 @@ public sealed record LoginRequest(string Email, string Password) : IRequest<Logi
 public sealed record LoginResponse(JwtTokens Tokens);
 
 
-internal sealed class LoginHandler : IRequestHandler<LoginRequest, LoginResponse>
+public sealed class LoginHandler : IRequestHandler<LoginRequest, LoginResponse>
 {
     private readonly IIdentityService _identityService;
     private readonly IJwtService _jwtService;

@@ -12,7 +12,7 @@ public sealed record RefreshRequest(string RefreshToken) : IRequest<RefreshRespo
 public sealed record RefreshResponse(JwtTokens Tokens);
 
 
-internal sealed class RefreshHandler : IRequestHandler<RefreshRequest, RefreshResponse>
+public sealed class RefreshHandler : IRequestHandler<RefreshRequest, RefreshResponse>
 {
     private readonly IJwtService _jwtService;
 

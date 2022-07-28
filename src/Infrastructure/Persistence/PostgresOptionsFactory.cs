@@ -13,8 +13,8 @@ internal static class PostgresOptionsFactory
         var connectionString = new NpgsqlConnectionStringBuilder
         {
             Host = postgresOptions.Host,
-            Port = postgresOptions.Port,
-            Username = postgresOptions.Username,
+            Port = postgresOptions.Port!.Value,
+            Username = postgresOptions.User,
             Password = postgresOptions.Password,
             Pooling = true
         }.ToString();

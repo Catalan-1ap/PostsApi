@@ -36,7 +36,10 @@ public class ExceptionMiddleware
             ValidationException e => new BadRequestObjectResult(e.ToValidationErrorResponse()),
             SeveralErrorsException e => new BadRequestObjectResult(new SeveralErrorsResponse(e.Errors)),
             BusinessException e => new BadRequestObjectResult(new SingleErrorResponse(e.Message)),
-            _ => new StatusCodeResult(StatusCodes.Status500InternalServerError)
+            _ => new ObjectResult("Something went wrong...")
+            {
+                StatusCode = StatusCodes.Status500InternalServerError
+            }
         };
 
         await result.ExecuteResultAsync(new()

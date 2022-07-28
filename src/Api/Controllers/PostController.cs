@@ -1,4 +1,5 @@
 ﻿using Api.Common;
+using Api.Contracts;
 using Api.Responses;
 using Core.Features.Posts;
 using MediatR;
@@ -41,5 +42,26 @@ public sealed class PostController : BaseController
         var response = await _mediator.Send(request);
 
         return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
+    }
+
+
+    /// <response code="400">Validation Error</response>
+    [Authorize]
+    [HttpPut(Routes.Posts.Update)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(SingleErrorResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ValidationErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<UpdatePostResponse>> Update(
+        [FromRoute] Guid id,
+        [FromBody] UpdatePostContract contract
+    )
+    {
+        var (title, body) = contract;
+        var request = new UpdatePostRequest(id, title, body);
+
+        var response = await _mediator.Send(request);
+
+        return Ok(response);
     }
 }

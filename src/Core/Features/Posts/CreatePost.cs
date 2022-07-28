@@ -1,6 +1,5 @@
 ﻿using Core.Entities;
 using Core.Interfaces;
-using Core.StorageContracts;
 using FluentValidation;
 using MediatR;
 
@@ -18,18 +17,14 @@ public sealed class CreatePostValidator : AbstractValidator<CreatePostRequest>
 {
     public CreatePostValidator()
     {
-        RuleFor(x => x.Title)
-            .NotEmptyWithMessage()
-            .MaximumLengthWithMessage(PostStorageContract.TitleMaxLength);
+        RuleFor(x => x.Title).ApplyTitleRules();
 
-        RuleFor(x => x.Body)
-            .NotEmptyWithMessage()
-            .MaximumLengthWithMessage(PostStorageContract.BodyMaxLength);
+        RuleFor(x => x.Body).ApplyBodyRules();
     }
 }
 
 
-internal sealed class CreatePostHandler : IRequestHandler<CreatePostRequest, CreatePostResponse>
+public sealed class CreatePostHandler : IRequestHandler<CreatePostRequest, CreatePostResponse>
 {
     private readonly ICurrentUserService _currentUserService;
     private readonly IApplicationDbContext _dbContext;
@@ -42,21 +37,22 @@ internal sealed class CreatePostHandler : IRequestHandler<CreatePostRequest, Cre
     }
 
 
-    public async Task<CreatePostResponse> Handle(CreatePostRequest request, CancellationToken cancellationToken)
+    public Task<CreatePostResponse> Handle(CreatePostRequest request, CancellationToken cancellationToken)
     {
         var (title, body) = request;
         var currentUser = _currentUserService.UserId;
 
-        var newPost = new Post(title, body)
+        var newPost = new Post
         {
+            Title = title,
+            Body = body,
             OwnerId = currentUser
         };
 
         _dbContext.Posts.Add(newPost);
-        await _dbContext.SaveChangesAsync(cancellationToken);
 
         var response = new CreatePostResponse(newPost.Id, newPost.Title, newPost.Body);
 
-        return response;
+        return Task.FromResult(response);
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text;
 using Api.Common;
 using Core.Interfaces;
 using Core.Settings;
@@ -14,29 +15,26 @@ public static class JwtInstaller
 {
     public static void InstallJwt(this IServiceCollection services, ConfigurationManager configuration)
     {
-        var envs = new[]
-        {
-            "JWT_SECRET",
-            "JWT_ISSUER",
-            "JWT_AUDIENCE"
-        }.GetEnvironmentVariables();
-        var secret = envs["JWT_SECRET"];
-        var issuer = envs["JWT_ISSUER"];
-        var audience = envs["JWT_AUDIENCE"];
-        var keyBytes = Encoding.ASCII.GetBytes(secret);
+        var jwtOptions = configuration.GetSection(JwtOptions.Section).Get<JwtOptions>();
+        var expiresOptions = configuration.GetSection(ExpiresOptions.Section).Get<ExpiresOptions>();
+
+        jwtOptions.ValidateDataAnnotations();
+        expiresOptions.ValidateDataAnnotations();
+
+        var keyBytes = Encoding.ASCII.GetBytes(jwtOptions.Secret);
         var securityKey = new SymmetricSecurityKey(keyBytes);
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
-        var expiresOptions = configuration.GetSection(nameof(Expires)).Get<Expires>();
 
         services.AddSingleton<IJwtSettings>(provider =>
-            new JwtSettings(provider.GetRequiredService<IDateTimeService>())
-            {
-                Issuer = issuer,
-                Audience = audience,
-                Credentials = credentials,
-                ExpiresForAccessTokenInput = TimeSpan.Parse(expiresOptions.AccessToken!),
-                ExpiresForRefreshTokenInput = TimeSpan.Parse(expiresOptions.RefreshToken!)
-            });
+            new JwtSettings(
+                provider.GetRequiredService<IDateTimeService>(),
+                jwtOptions.Issuer,
+                jwtOptions.Audience,
+                credentials,
+                expiresOptions.AccessToken!.Value,
+                expiresOptions.RefreshToken!.Value
+            )
+        );
 
         services.AddAuthentication(x =>
             {
@@ -52,8 +50,8 @@ public static class JwtInstaller
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = issuer,
-                    ValidAudience = audience,
+                    ValidIssuer = jwtOptions.Issuer,
+                    ValidAudience = jwtOptions.Audience,
                     IssuerSigningKey = securityKey,
                     ClockSkew = TimeSpan.Zero
                 };
@@ -61,9 +59,29 @@ public static class JwtInstaller
     }
 
 
-    private sealed class Expires
+    private sealed class JwtOptions
     {
-        public string? AccessToken { get; init; }
-        public string? RefreshToken { get; init; }
+        public const string Section = "Jwt";
+
+        [Required]
+        public string Secret { get; init; } = null!;
+
+        [Required]
+        public string Issuer { get; init; } = null!;
+
+        [Required]
+        public string Audience { get; init; } = null!;
+    }
+
+
+    private sealed class ExpiresOptions
+    {
+        public const string Section = "Expires";
+
+        [Required]
+        public TimeSpan? AccessToken { get; init; }
+
+        [Required]
+        public TimeSpan? RefreshToken { get; init; }
     }
 }

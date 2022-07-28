@@ -1,6 +1,7 @@
 ﻿using Core.Entities;
 using Core.Exceptions;
 using Core.Interfaces;
+using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +18,18 @@ public sealed record GetPostByIdResponse(Guid Id, string Title, string Body, Get
 }
 
 
-internal sealed class GetPostByIdHandler : IRequestHandler<GetPostByIdRequest, GetPostByIdResponse>
+public sealed class GetPostByIdValidator : AbstractValidator<GetPostByIdRequest>
+{
+    public GetPostByIdValidator(IApplicationDbContext dbContext)
+    {
+        RuleFor(x => x.Id)
+            .NotEmpty()
+            .MustAsync((id, cancellationToken) => ValidationRules.PostShouldExists(id, dbContext, cancellationToken));
+    }
+}
+
+
+public sealed class GetPostByIdHandler : IRequestHandler<GetPostByIdRequest, GetPostByIdResponse>
 {
     private readonly IApplicationDbContext _dbContext;
 
@@ -28,6 +40,7 @@ internal sealed class GetPostByIdHandler : IRequestHandler<GetPostByIdRequest, G
     public async Task<GetPostByIdResponse> Handle(GetPostByIdRequest request, CancellationToken cancellationToken)
     {
         var post = await _dbContext.Posts
+            .AsNoTracking()
             .Where(x => x.Id == request.Id)
             .Select(x => new GetPostByIdResponse(
                 x.Id,
@@ -38,7 +51,7 @@ internal sealed class GetPostByIdHandler : IRequestHandler<GetPostByIdRequest, G
             .SingleOrDefaultAsync(cancellationToken);
 
         if (post is null)
-            throw new NotFoundException(nameof(Post), request.Id);
+            throw NotFoundException.Make(nameof(Post), request.Id);
 
         return post;
     }

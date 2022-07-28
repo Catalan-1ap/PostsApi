@@ -1,5 +1,6 @@
 ﻿using Core.Entities;
 using Core.Interfaces;
+using Infrastructure.Common;
 using Infrastructure.Options;
 using Infrastructure.Persistence;
 using Infrastructure.PipelineBehaviours;
@@ -29,6 +30,7 @@ public static class DependencyInjection
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehaviour<,>));
+        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(SaveChangesPipelineBehaviour<,>));
     }
 
 
@@ -40,6 +42,11 @@ public static class DependencyInjection
 
         // if you fall with exception here - visit (https://github.com/npgsql/npgsql/issues/3955) and install certificates
         await context.Database.MigrateAsync();
+
+        var seedData = new SeedData(scope.ServiceProvider);
+
+        if (await seedData.IsSeedingRequired())
+            await seedData.Seed();
     }
 
 

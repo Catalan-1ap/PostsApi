@@ -44,12 +44,13 @@ public sealed class JwtService : IJwtService
         var handler = new JwtSecurityTokenHandler();
         var accessToken = handler.WriteToken(securityToken);
         var refreshToken = CreateRefreshToken();
-        _dbContext.RefreshTokens.Add(new(
-            refreshToken,
-            userId,
-            DateOnly.FromDateTime(_jwtOptions.ExpiresForRefreshToken),
-            _dateTimeService.UtcNowDate
-        ));
+        _dbContext.RefreshTokens.Add(new()
+        {
+            Token = refreshToken,
+            UserId = userId,
+            CreatedAt = _dateTimeService.UtcNowDate,
+            ExpiredAt = DateOnly.FromDateTime(_jwtOptions.ExpiresForRefreshToken)
+        });
 
         return new(accessToken, refreshToken);
     }
@@ -61,7 +62,7 @@ public sealed class JwtService : IJwtService
             .SingleOrDefaultAsync(token => token.Token == refreshToken);
 
         if (tokenDetails is null)
-            throw new NotFoundException(nameof(RefreshToken), refreshToken);
+            throw NotFoundException.Make(nameof(RefreshToken), refreshToken);
 
         _dbContext.RefreshTokens.Remove(tokenDetails);
 

@@ -3,14 +3,9 @@
 
 public sealed class NotFoundException : BusinessException
 {
-    public string EntityName { get; }
-    public object Key { get; }
+    private NotFoundException(string message) : base(message) { }
 
 
-    public NotFoundException(string entityName, object key)
-        : base($"Entity '{entityName}' with key ({key}) was not found.")
-    {
-        EntityName = entityName;
-        Key = key;
-    }
+    public static NotFoundException Make<T>(string entityName, T key) =>
+        new($"Entity '{entityName}' with key ({key}) was not found.");
 }

@@ -13,6 +13,7 @@
     <ItemGroup>
         <PackageReference Include="MicroElements.Swashbuckle.FluentValidation" Version="5.7.0"/>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.6"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.1"/>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3"/>
     </ItemGroup>
 
