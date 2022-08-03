@@ -35,5 +35,6 @@ public class SeedData
         var mediator = _serviceProvider.GetRequiredService<IMediator>();
 
         await mediator.Send(new RegisterRequest("admin", "admin@example.com", "VeryStrongPassword"));
+        await mediator.Send(new RegisterRequest("notadmin", "notadmin@example.com", "VeryWeakPassword"));
     }
 }

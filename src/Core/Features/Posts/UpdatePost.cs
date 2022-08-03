@@ -1,7 +1,6 @@
 ﻿using Core.Interfaces;
 using FluentValidation;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 
 namespace Core.Features.Posts;
@@ -15,11 +14,9 @@ public sealed record UpdatePostResponse(Guid Id, string Title, string Body);
 
 public sealed class UpdatePostValidator : AbstractValidator<UpdatePostRequest>
 {
-    public UpdatePostValidator(IApplicationDbContext dbContext)
+    public UpdatePostValidator()
     {
-        RuleFor(x => x.Id)
-            .NotEmpty()
-            .MustAsync((id, cancellationToken) => ValidationRules.PostShouldExists(id, dbContext, cancellationToken));
+        RuleFor(x => x.Id).ApplyIdRules();
 
         RuleFor(x => x.Title).ApplyTitleRules();
 
@@ -30,22 +27,37 @@ public sealed class UpdatePostValidator : AbstractValidator<UpdatePostRequest>
 
 public sealed class UpdatePostHandler : IRequestHandler<UpdatePostRequest, UpdatePostResponse>
 {
+    private readonly ICurrentUserService _currentUserService;
     private readonly IApplicationDbContext _dbContext;
 
 
-    public UpdatePostHandler(IApplicationDbContext dbContext) => _dbContext = dbContext;
+    public UpdatePostHandler(IApplicationDbContext dbContext, ICurrentUserService currentUserService)
+    {
+        _dbContext = dbContext;
+        _currentUserService = currentUserService;
+    }
 
 
     public async Task<UpdatePostResponse> Handle(UpdatePostRequest request, CancellationToken cancellationToken)
     {
-        var post = await _dbContext.Posts
-            .SingleAsync(post => post.Id == request.Id, cancellationToken);
+        await Prepare(request, cancellationToken);
 
-        post.Title = request.Title;
+        var post = await _dbContext.Posts
+            .FindAsync(new object?[] { request.Id }, cancellationToken);
+
+        post!.Title = request.Title;
         post.Body = request.Body;
 
         _dbContext.Posts.Update(post);
 
         return new(post.Id, post.Title, post.Body);
+    }
+
+
+    private async Task Prepare(UpdatePostRequest request, CancellationToken cancellationToken)
+    {
+        var post = await ValidationRules.PostShouldExists(request.Id, _dbContext, cancellationToken);
+
+        ValidationRules.CurrentUserShouldOwnPost(post, _currentUserService);
     }
 }

@@ -3,7 +3,6 @@ using Core.Exceptions;
 using Core.Interfaces;
 using Core.StorageContracts;
 using FluentValidation;
-using Microsoft.EntityFrameworkCore;
 
 
 namespace Core.Features.Posts;
@@ -11,6 +10,11 @@ namespace Core.Features.Posts;
 
 internal static class ValidationRules
 {
+    public static void ApplyIdRules<T>(this IRuleBuilder<T, Guid> builder) =>
+        builder
+            .NotEmpty();
+
+
     public static void ApplyTitleRules<T>(this IRuleBuilder<T, string> builder) =>
         builder
             .NotEmptyWithMessage()
@@ -23,18 +27,22 @@ internal static class ValidationRules
             .MaximumLengthWithMessage(PostStorageContract.BodyMaxLength);
 
 
-    public static async Task<bool> PostShouldExists(
+    public static async Task<Post> PostShouldExists(
         Guid id,
         IApplicationDbContext dbContext,
         CancellationToken cancellationToken
     )
     {
         var post = await dbContext.Posts
-            .AsNoTracking()
-            .SingleOrDefaultAsync(post => post.Id == id, cancellationToken);
+            .FindAsync(new object[] { id }, cancellationToken);
 
-        return post is null
-            ? throw NotFoundException.Make(nameof(Post), id)
-            : true;
+        return post ?? throw NotFoundException.Make(nameof(Post), id);
+    }
+
+
+    public static void CurrentUserShouldOwnPost(Post post, ICurrentUserService currentUserService)
+    {
+        if (post.OwnerId != currentUserService.UserId)
+            throw new BusinessException("You does not own this post");
     }
 }
