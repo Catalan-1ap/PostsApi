@@ -8,7 +8,7 @@ namespace Api.Installers;
 
 public static class InfrastructureInstaller
 {
-    public static void InstallInfrastructure(this IServiceCollection services, ConfigurationManager configuration)
+    public static void AddInfrastructure(this IServiceCollection services, ConfigurationManager configuration)
     {
         var section = configuration.GetSection(PostgresOptions.Section);
         var options = section.Get<PostgresOptions>();
@@ -20,7 +20,7 @@ public static class InfrastructureInstaller
     }
 
 
-    public static async Task InitializeInfrastructure(this WebApplication app)
+    public static async Task UseInfrastructure(this WebApplication app)
     {
         await app.Services.InitializeInfrastructure();
     }

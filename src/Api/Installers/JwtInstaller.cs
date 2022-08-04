@@ -13,7 +13,7 @@ namespace Api.Installers;
 
 public static class JwtInstaller
 {
-    public static void InstallJwt(this IServiceCollection services, ConfigurationManager configuration)
+    public static void AddJwt(this IServiceCollection services, ConfigurationManager configuration)
     {
         var jwtOptions = configuration.GetSection(JwtOptions.Section).Get<JwtOptions>();
         var expiresOptions = configuration.GetSection(ExpiresOptions.Section).Get<ExpiresOptions>();

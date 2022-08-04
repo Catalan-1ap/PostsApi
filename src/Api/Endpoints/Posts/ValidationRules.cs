@@ -1,11 +1,12 @@
-﻿using Core.Entities;
+﻿using Api.Common;
+using Core.Entities;
 using Core.Exceptions;
 using Core.Interfaces;
 using Core.StorageContracts;
 using FluentValidation;
 
 
-namespace Core.Features.Posts;
+namespace Api.Endpoints.Posts;
 
 
 internal static class ValidationRules

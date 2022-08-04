@@ -1,11 +1,8 @@
 ﻿using Core.Entities;
 using Core.Interfaces;
-using Infrastructure.Common;
 using Infrastructure.Options;
 using Infrastructure.Persistence;
-using Infrastructure.PipelineBehaviours;
 using Infrastructure.Services;
-using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,9 +25,6 @@ public static class DependencyInjection
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
-
-        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehaviour<,>));
-        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(SaveChangesPipelineBehaviour<,>));
     }
 
 
@@ -42,11 +36,6 @@ public static class DependencyInjection
 
         // if you fall with exception here - visit (https://github.com/npgsql/npgsql/issues/3955) and install certificates
         await context.Database.MigrateAsync();
-
-        var seedData = new SeedData(scope.ServiceProvider);
-
-        if (await seedData.IsSeedingRequired())
-            await seedData.Seed();
     }
 
 

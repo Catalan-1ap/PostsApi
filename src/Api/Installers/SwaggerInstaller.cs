@@ -1,8 +1,5 @@
-﻿using System.Reflection;
-using FluentValidation;
-using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.OpenApi.Models;
+﻿using Api.Common;
+using FastEndpoints.Swagger;
 
 
 namespace Api.Installers;
@@ -10,57 +7,29 @@ namespace Api.Installers;
 
 public static class SwaggerInstaller
 {
-    public static void InstallSwagger(this IServiceCollection services)
+    public static void AddSwagger(this IServiceCollection services)
     {
-        services.AddSwaggerGen(x =>
-        {
-            x.SwaggerDoc("v1",
-                new()
-                {
-                    Title = "PostsApi",
-                    Version = "v1",
-                    Description = "Simple API for managing posts"
-                });
-
-            x.AddSecurityDefinition("Bearer",
-                new()
-                {
-                    In = ParameterLocation.Header,
-                    Description = "JSON Web Token to access resources. Example: Bearer {token}",
-                    Scheme = "Bearer",
-                    Name = "Authorization",
-                    Type = SecuritySchemeType.ApiKey
-                });
-
-            x.AddSecurityRequirement(new()
+        services.AddSwaggerDoc(x =>
             {
-                {
-                    new()
-                    {
-                        Reference = new() { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
-                    },
-                    new[] { string.Empty }
-                }
-            });
-
-            var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-            x.IncludeXmlComments(
-                Path.Combine(AppContext.BaseDirectory, xmlFilename),
-                includeControllerXmlComments: true
-            );
-        });
-        services.TryAddTransient<IValidatorFactory, ServiceProviderValidatorFactory>();
-        services.AddFluentValidationRulesToSwagger();
+                x.Title = "PostsApi";
+                x.Version = "v1";
+                x.Description = "Simple API for managing posts";
+            },
+            serializerSettings: SharedOptions.SerializerOptions,
+            tagIndex: 2,
+            shortSchemaNames: true
+        );
     }
 
 
-    public static void InitializeSwagger(this WebApplication app)
+    public static void UseSwagger(this WebApplication app)
     {
-        app.UseSwagger();
-        app.UseSwaggerUI(x =>
+        app.UseOpenApi();
+        app.UseSwaggerUi3(x =>
         {
-            x.SwaggerEndpoint("/swagger/v1/swagger.json", "PostsApi");
-            x.RoutePrefix = string.Empty;
+            x.ConfigureDefaults();
+            x.AdditionalSettings["tryItOutEnabled"] = false;
+            x.Path = "";
         });
     }
 }

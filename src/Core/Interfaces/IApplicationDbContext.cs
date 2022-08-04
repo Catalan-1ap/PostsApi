@@ -9,4 +9,6 @@ public interface IApplicationDbContext
 {
     DbSet<Post> Posts { get; }
     DbSet<RefreshToken> RefreshTokens { get; }
+
+    Task SaveChangesAsync(CancellationToken cancellationToken);
 }

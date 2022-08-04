@@ -1,50 +1,46 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Api.Common;
 using Api.Installers;
 using Api.Services;
-using Core;
 using Core.Interfaces;
+using FastEndpoints;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.TryAddSingleton<IActionResultExecutor<ObjectResult>, ObjectResultExecutor>();
 builder.Configuration.AddEnvironmentVariables("API_");
-
-builder.Services
-    .AddControllers()
-    .ConfigureApiBehaviorOptions(x =>
-    {
-        x.SuppressModelStateInvalidFilter = true;
-        x.SuppressInferBindingSourcesForParameters = true;
-        x.SuppressMapClientErrors = true;
-    })
-    .AddJsonOptions(x =>
-    {
-        x.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
-        x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-    });
-builder.Services.AddApplication();
-
-builder.Services.InstallInfrastructure(builder.Configuration);
-builder.Services.InstallSwagger();
-builder.Services.InstallJwt(builder.Configuration);
+builder.Services.AddFastEndpoints();
+builder.Services.AddControllers();
+builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddSwagger();
+builder.Services.AddJwt(builder.Configuration);
 builder.Services.AddSingleton<ICurrentUserService, CurrentUserService>();
 
 var app = builder.Build();
 
-await app.InitializeInfrastructure();
-app.InitializeSwagger();
-
+await app.UseInfrastructure();
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.UseEndpoints(x =>
+app.UseFastEndpoints(x =>
 {
-    x.MapControllers();
+    x.ShortEndpointNames = true;
+    x.SerializerOptions = SharedOptions.SerializerOptions;
+    x.ErrorResponseBuilder = (failures, _) => failures.ToValidationErrorResponse();
 });
+app.UseSwagger();
+
+using (var scope = app.Services.CreateScope())
+{
+    var seedData = new SeedData(scope.ServiceProvider);
+
+    if (await seedData.IsSeedingRequired())
+        await seedData.Seed();
+}
+
 app.Run();

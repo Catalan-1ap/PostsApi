@@ -1,7 +1,7 @@
 ﻿namespace Api.Common;
 
 
-public static class Routes
+public static class ApiRoutes
 {
     private const string Root = "api";
 
