@@ -9,18 +9,16 @@ namespace Infrastructure.Services;
 
 public sealed class IdentityService : IIdentityService
 {
-    private readonly ICurrentUserService _currentUserService;
     private readonly UserManager<User> _userManager;
 
 
-    public IdentityService(UserManager<User> userManager, ICurrentUserService currentUserService)
+    public IdentityService(UserManager<User> userManager)
     {
         _userManager = userManager;
-        _currentUserService = currentUserService;
     }
 
 
-    public async Task<string> Register(string userName, string email, string password)
+    public async Task<User> RegisterAsync(string userName, string email, string password)
     {
         var id = Guid.NewGuid().ToString();
         var user = new User
@@ -31,15 +29,15 @@ public sealed class IdentityService : IIdentityService
         };
 
         var result = await _userManager.CreateAsync(user, password);
-
+        
         if (result.Errors.Any())
             throw new SeveralErrorsException(result.Errors.Select(x => x.Description));
 
-        return id;
+        return user;
     }
 
 
-    public async Task<User> Login(string email, string password)
+    public async Task<User> LoginAsync(string email, string password)
     {
         var user = await _userManager.FindByEmailAsync(email);
 
@@ -55,7 +53,10 @@ public sealed class IdentityService : IIdentityService
     }
 
 
-    public async Task<bool> IsUsernameUnique(string userName)
+    public async Task<User> GetByIdAsync(string id) => await _userManager.FindByIdAsync(id);
+
+
+    public async Task<bool> IsUsernameUniqueAsync(string userName)
     {
         var user = await _userManager.FindByNameAsync(userName);
 
@@ -63,7 +64,7 @@ public sealed class IdentityService : IIdentityService
     }
 
 
-    public async Task<bool> IsEmailUnique(string email)
+    public async Task<bool> IsEmailUniqueAsync(string email)
     {
         var user = await _userManager.FindByEmailAsync(email);
 

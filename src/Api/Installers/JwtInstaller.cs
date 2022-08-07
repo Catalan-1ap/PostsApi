@@ -21,21 +21,34 @@ public static class JwtInstaller
         jwtOptions.ValidateDataAnnotations();
         expiresOptions.ValidateDataAnnotations();
 
-        var keyBytes = Encoding.ASCII.GetBytes(jwtOptions.Secret);
+        // 
+        var keyBytes = Convert.FromBase64String(jwtOptions.Secret);
         var securityKey = new SymmetricSecurityKey(keyBytes);
-        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
+        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+        var tokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtOptions.Issuer,
+            IssuerSigningKey = securityKey,
+            ClockSkew = TimeSpan.Zero,
+        };
 
+        var serviceValidationParameters = tokenValidationParameters.Clone();
+        serviceValidationParameters.ValidateLifetime = false;
         services.AddSingleton<IJwtSettings>(provider =>
             new JwtSettings(
                 provider.GetRequiredService<IDateTimeService>(),
                 jwtOptions.Issuer,
-                jwtOptions.Audience,
                 credentials,
+                serviceValidationParameters,
                 expiresOptions.AccessToken!.Value,
                 expiresOptions.RefreshToken!.Value
             )
         );
-
+        services.AddSingleton(serviceValidationParameters);
+        
         services.AddAuthentication(x =>
             {
                 x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -44,17 +57,7 @@ public static class JwtInstaller
             })
             .AddJwtBearer(x =>
             {
-                x.SaveToken = true;
-                x.TokenValidationParameters = new()
-                {
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtOptions.Issuer,
-                    ValidAudience = jwtOptions.Audience,
-                    IssuerSigningKey = securityKey,
-                    ClockSkew = TimeSpan.Zero
-                };
+                x.TokenValidationParameters = tokenValidationParameters;
             });
     }
 
@@ -68,9 +71,6 @@ public static class JwtInstaller
 
         [Required]
         public string Issuer { get; init; } = null!;
-
-        [Required]
-        public string Audience { get; init; } = null!;
     }
 
 

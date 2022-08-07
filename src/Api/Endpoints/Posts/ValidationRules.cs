@@ -28,7 +28,7 @@ internal static class ValidationRules
             .MaximumLengthWithMessage(PostStorageContract.BodyMaxLength);
 
 
-    public static async Task<Post> PostShouldExists(
+    public static async Task<Post> PostShouldExistsAsync(
         Guid id,
         IApplicationDbContext dbContext,
         CancellationToken cancellationToken
@@ -41,9 +41,9 @@ internal static class ValidationRules
     }
 
 
-    public static void CurrentUserShouldOwnPost(Post post, ICurrentUserService currentUserService)
+    public static void UserShouldOwnPost(Post post, string userId)
     {
-        if (post.OwnerId != currentUserService.UserId)
+        if (post.OwnerId != userId)
             throw new BusinessException("You does not own this post");
     }
 }

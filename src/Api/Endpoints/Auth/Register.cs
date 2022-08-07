@@ -1,4 +1,5 @@
 ﻿using Api.Common;
+using Api.Processors;
 using Api.Responses;
 using Core.Interfaces;
 using Core.Models;
@@ -33,11 +34,11 @@ public sealed class RegisterValidator : Validator<RegisterRequest>
         _identityService = identityService;
 
         RuleFor(x => x.UserName)
-            .MustAsync(UniqueUsername).WithMessage("Must be unique");
+            .MustAsync(UniqueUsernameAsync).WithMessage("Must be unique");
 
         RuleFor(x => x.Email)
             .EmailAddress()
-            .MustAsync(UniqueEmail).WithMessage("Must be unique");
+            .MustAsync(UniqueEmailAsync).WithMessage("Must be unique");
 
         RuleFor(x => x.Password)
             .NotEmptyWithMessage()
@@ -45,12 +46,12 @@ public sealed class RegisterValidator : Validator<RegisterRequest>
     }
 
 
-    private async Task<bool> UniqueUsername(string userName, CancellationToken cancellationToken) =>
-        await _identityService.IsUsernameUnique(userName);
+    private async Task<bool> UniqueUsernameAsync(string userName, CancellationToken cancellationToken) =>
+        await _identityService.IsUsernameUniqueAsync(userName);
 
 
-    private async Task<bool> UniqueEmail(string email, CancellationToken cancellationToken) =>
-        await _identityService.IsEmailUnique(email);
+    private async Task<bool> UniqueEmailAsync(string email, CancellationToken cancellationToken) =>
+        await _identityService.IsEmailUniqueAsync(email);
 }
 
 
@@ -72,19 +73,19 @@ public sealed class RegisterEndpoint : Endpoint<RegisterRequest, RegisterRespons
         Post(ApiRoutes.Auth.Register);
         ScopedValidator();
         AllowAnonymous();
+        PostProcessors(new SaveChangesPostProcessor<RegisterRequest, RegisterResponse>());
 
         Summary(x =>
         {
             x.Response<LoginResponse>(StatusCodes.Status200OK, "JWT tokens");
-            x.Response<ValidationErrorResponse>(StatusCodes.Status400BadRequest, "Validation error");
         });
     }
 
 
     public override async Task HandleAsync(RegisterRequest req, CancellationToken ct)
     {
-        var id = await _identityService.Register(req.UserName, req.Email, req.Password);
-        var tokens = _jwtService.Access(id);
+        var user = await _identityService.RegisterAsync(req.UserName, req.Email, req.Password);
+        var tokens = _jwtService.Access(user);
 
         await SendOkAsync(new()
             {

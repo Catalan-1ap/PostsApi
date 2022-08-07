@@ -1,4 +1,7 @@
-﻿namespace Infrastructure.Common;
+﻿using System.Security.Claims;
+
+
+namespace Infrastructure.Common;
 
 
 public static class Claims

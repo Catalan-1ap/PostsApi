@@ -12,25 +12,27 @@ public sealed class JwtSettings : IJwtSettings
     private readonly TimeSpan _expiresForAccessTokenInput;
     private readonly TimeSpan _expiresForRefreshTokenInput;
 
-    public string Issuer { get; init; }
-    public string Audience { get; init; }
-    public SigningCredentials Credentials { get; init; }
+    public string Issuer { get; }
+    public SigningCredentials Credentials { get; }
+    public TokenValidationParameters TokenValidationParameters { get; }
     public DateTime ExpiresForAccessToken => _dateTimeService.UtcNow.Add(_expiresForAccessTokenInput);
     public DateTime ExpiresForRefreshToken => _dateTimeService.UtcNow.Add(_expiresForRefreshTokenInput);
 
 
-    public JwtSettings(IDateTimeService dateTimeService,
-                       string issuer,
-                       string audience,
-                       SigningCredentials credentials,
-                       TimeSpan expiresForAccessTokenInput,
-                       TimeSpan expiresForRefreshTokenInput)
+    public JwtSettings(
+        IDateTimeService dateTimeService,
+        string issuer,
+        SigningCredentials credentials,
+        TokenValidationParameters tokenValidationParameters,
+        TimeSpan expiresForAccessTokenInput,
+        TimeSpan expiresForRefreshTokenInput
+    )
     {
         _dateTimeService = dateTimeService;
         Issuer = issuer;
-        Audience = audience;
         Credentials = credentials;
         _expiresForAccessTokenInput = expiresForAccessTokenInput;
         _expiresForRefreshTokenInput = expiresForRefreshTokenInput;
+        TokenValidationParameters = tokenValidationParameters;
     }
 }

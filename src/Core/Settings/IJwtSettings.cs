@@ -7,10 +7,10 @@ namespace Core.Settings;
 public interface IJwtSettings
 {
     string Issuer { get; }
-
-    string Audience { get; }
-
+    
     SigningCredentials Credentials { get; }
+
+    public TokenValidationParameters TokenValidationParameters { get; }
 
     DateTime ExpiresForAccessToken { get; }
 

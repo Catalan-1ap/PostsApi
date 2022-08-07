@@ -1,4 +1,5 @@
 ﻿using Api.Common;
+using Api.Processors;
 using Api.Responses;
 using Core.Interfaces;
 using Core.Models;
@@ -49,11 +50,11 @@ public sealed class LoginEndpoint : Endpoint<LoginRequest, LoginResponse>
     {
         Post(ApiRoutes.Auth.Login);
         AllowAnonymous();
-
+        PostProcessors(new SaveChangesPostProcessor<LoginRequest, LoginResponse>());
+        
         Summary(x =>
         {
             x.Response<LoginResponse>(StatusCodes.Status200OK, "JWT tokens");
-            x.Response<ValidationErrorResponse>(StatusCodes.Status400BadRequest, "Validation error");
             x.Response<SingleErrorResponse>(StatusCodes.Status400BadRequest, "Email/Password combination is wrong");
             x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound, "User does not exists");
         });
@@ -62,9 +63,9 @@ public sealed class LoginEndpoint : Endpoint<LoginRequest, LoginResponse>
 
     public override async Task HandleAsync(LoginRequest req, CancellationToken ct)
     {
-        var user = await _identityService.Login(req.Email, req.Password);
+        var user = await _identityService.LoginAsync(req.Email, req.Password);
 
-        var tokens = _jwtService.Access(user.Id);
+        var tokens = _jwtService.Access(user);
 
         await SendOkAsync(new()
             {

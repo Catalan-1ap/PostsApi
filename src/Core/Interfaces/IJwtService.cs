@@ -1,4 +1,5 @@
-﻿using Core.Models;
+﻿using Core.Entities;
+using Core.Models;
 
 
 namespace Core.Interfaces;
@@ -6,7 +7,7 @@ namespace Core.Interfaces;
 
 public interface IJwtService
 {
-    JwtTokens Access(string userId);
+    JwtTokens Access(User user);
 
-    Task<JwtTokens> Refresh(string refreshToken);
+    Task<JwtTokens> RefreshAsync(JwtTokens tokens);
 }

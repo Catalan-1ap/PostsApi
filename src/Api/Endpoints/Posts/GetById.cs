@@ -55,7 +55,6 @@ public sealed class GetByIdEndpoint : Endpoint<GetByIdRequest, GetByIdResponse>
         Summary(x =>
         {
             x.Response<GetByIdResponse>();
-            x.Response<ValidationErrorResponse>(StatusCodes.Status400BadRequest, "Validation error");
             x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound);
         });
     }
@@ -63,7 +62,7 @@ public sealed class GetByIdEndpoint : Endpoint<GetByIdRequest, GetByIdResponse>
 
     public override async Task HandleAsync(GetByIdRequest req, CancellationToken ct)
     {
-        await Prepare(req, ct);
+        await PrepareAsync(req, ct);
 
         var post = await _dbContext.Posts
             .AsNoTracking()
@@ -85,8 +84,8 @@ public sealed class GetByIdEndpoint : Endpoint<GetByIdRequest, GetByIdResponse>
     }
 
 
-    private async Task Prepare(GetByIdRequest req, CancellationToken ct)
+    private async Task PrepareAsync(GetByIdRequest req, CancellationToken ct)
     {
-        await ValidationRules.PostShouldExists(req.Id, _dbContext, ct);
+        await ValidationRules.PostShouldExistsAsync(req.Id, _dbContext, ct);
     }
 }

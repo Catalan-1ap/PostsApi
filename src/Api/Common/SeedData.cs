@@ -17,7 +17,7 @@ public class SeedData
     public SeedData(IServiceProvider serviceProvider) => _serviceProvider = serviceProvider;
 
 
-    public async Task<bool> IsSeedingRequired()
+    public async Task<bool> IsSeedingRequiredAsync()
     {
         bool seedingRequired = true;
 
@@ -30,26 +30,11 @@ public class SeedData
     }
 
 
-    public async Task Seed()
+    public async Task SeedAsync()
     {
         var identity = _serviceProvider.GetRequiredService<IIdentityService>();
-        var jwt = _serviceProvider.GetRequiredService<IJwtService>();
 
-        var registerEndpoint = Factory.Create<RegisterEndpoint>(identity, jwt);
-
-        await registerEndpoint.HandleAsync(new()
-            {
-                UserName = "admin",
-                Email = "admin@example.com",
-                Password = "VeryStrongPassword"
-            },
-            CancellationToken.None);
-        await registerEndpoint.HandleAsync(new()
-            {
-                UserName = "notadmin",
-                Email = "notadmin@example.com",
-                Password = "VeryWeakPassword"
-            },
-            CancellationToken.None);
+        await identity.RegisterAsync("admin", "admin@example.com", "VeryStrongPassword");
+        await identity.RegisterAsync("notadmin", "notadmin@example.com", "VeryWeakPassword");
     }
 }

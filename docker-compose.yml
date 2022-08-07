@@ -17,7 +17,6 @@ services:
       API_POSTGRES__PORT: 5432
       API_JWT__SECRET: ${API_JWT__SECRET}
       API_JWT__ISSUER: ${API_JWT__ISSUER}
-      API_JWT__AUDIENCE: ${API_JWT__AUDIENCE}
   database:
     image: postgres:alpine
     volumes:

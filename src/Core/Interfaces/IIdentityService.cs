@@ -6,11 +6,13 @@ namespace Core.Interfaces;
 
 public interface IIdentityService
 {
-    Task<string> Register(string userName, string email, string password);
+    Task<User> RegisterAsync(string userName, string email, string password);
 
-    Task<User> Login(string email, string password);
+    Task<User> LoginAsync(string email, string password);
 
-    Task<bool> IsUsernameUnique(string userName);
+    Task<User> GetByIdAsync(string id);
 
-    Task<bool> IsEmailUnique(string email);
+    Task<bool> IsUsernameUniqueAsync(string userName);
+
+    Task<bool> IsEmailUniqueAsync(string email);
 }

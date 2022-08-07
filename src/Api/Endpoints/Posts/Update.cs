@@ -4,6 +4,7 @@ using Api.Processors;
 using Api.Responses;
 using Core.Interfaces;
 using FastEndpoints;
+using Infrastructure.Common;
 
 
 namespace Api.Endpoints.Posts;
@@ -11,6 +12,8 @@ namespace Api.Endpoints.Posts;
 
 public sealed class UpdateRequest
 {
+    [FromClaim(Claims.Id)]
+    public string UserId { get; init; } = null!;
     [JsonIgnore]
     public Guid Id { get; init; }
     public string Title { get; init; } = null!;
@@ -33,13 +36,11 @@ public sealed class UpdateValidator : Validator<UpdateRequest>
 
 public sealed class UpdateEndpoint : Endpoint<UpdateRequest, EmptyResponse>
 {
-    private readonly ICurrentUserService _currentUserService;
     private readonly IApplicationDbContext _dbContext;
 
 
-    public UpdateEndpoint(ICurrentUserService currentUserService, IApplicationDbContext dbContext)
+    public UpdateEndpoint(IApplicationDbContext dbContext)
     {
-        _currentUserService = currentUserService;
         _dbContext = dbContext;
     }
 
@@ -52,8 +53,6 @@ public sealed class UpdateEndpoint : Endpoint<UpdateRequest, EmptyResponse>
         Summary(x =>
         {
             x.Response();
-            x.Response<ValidationErrorResponse>(StatusCodes.Status400BadRequest, "Validation error");
-            x.Response(StatusCodes.Status401Unauthorized);
             x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound);
         });
     }
@@ -61,7 +60,7 @@ public sealed class UpdateEndpoint : Endpoint<UpdateRequest, EmptyResponse>
 
     public override async Task HandleAsync(UpdateRequest req, CancellationToken ct)
     {
-        await Prepare(req, ct);
+        await PrepareAsync(req, ct);
 
         var post = await _dbContext.Posts.FindAsync(new object?[] { req.Id }, ct);
 
@@ -74,10 +73,10 @@ public sealed class UpdateEndpoint : Endpoint<UpdateRequest, EmptyResponse>
     }
 
 
-    private async Task Prepare(UpdateRequest req, CancellationToken ct)
+    private async Task PrepareAsync(UpdateRequest req, CancellationToken ct)
     {
-        var post = await ValidationRules.PostShouldExists(req.Id, _dbContext, ct);
+        var post = await ValidationRules.PostShouldExistsAsync(req.Id, _dbContext, ct);
 
-        ValidationRules.CurrentUserShouldOwnPost(post, _currentUserService);
+        ValidationRules.UserShouldOwnPost(post, req.UserId);
     }
 }
