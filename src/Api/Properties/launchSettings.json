@@ -16,12 +16,12 @@
       "applicationUrl": "https://localhost:5001",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "API_POSTGRES__HOST": "localhost",
-        "API_POSTGRES__USER": "sa",
-        "API_POSTGRES__PASSWORD": "pass",
-        "API_POSTGRES__PORT": "5432",
-        "API_JWT__SECRET": "9Qxr6gZrMdPRzcBAG0mXegVsQag1t0l/ngph9HokACmyqBrl+/WHjgiQDinChr4b8KiDkxnZ5TtT1TXHaia/gQ==",
-        "API_JWT__ISSUER": "PostsAPI"
+        "ASPNETCORE_POSTGRES__HOST": "localhost",
+        "ASPNETCORE_POSTGRES__USER": "sa",
+        "ASPNETCORE_POSTGRES__PASSWORD": "pass",
+        "ASPNETCORE_POSTGRES__PORT": "5432",
+        "ASPNETCORE_JWT__SECRET": "9Qxr6gZrMdPRzcBAG0mXegVsQag1t0l/ngph9HokACmyqBrl+/WHjgiQDinChr4b8KiDkxnZ5TtT1TXHaia/gQ==",
+        "ASPNETCORE_JWT__ISSUER": "PostsAPI"
       }
     },
     "IIS Express": {

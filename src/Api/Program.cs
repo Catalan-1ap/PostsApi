@@ -10,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.TryAddSingleton<IActionResultExecutor<ObjectResult>, ObjectResultExecutor>();
-builder.Configuration.AddEnvironmentVariables("API_");
 builder.Services.AddFastEndpoints();
 builder.Services.AddControllers();
 builder.Services.AddInfrastructure(builder.Configuration);

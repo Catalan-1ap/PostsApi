@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Text;
 using Api.Common;
 using Core.Interfaces;
 using Core.Settings;
@@ -21,7 +20,6 @@ public static class JwtInstaller
         jwtOptions.ValidateDataAnnotations();
         expiresOptions.ValidateDataAnnotations();
 
-        // 
         var keyBytes = Convert.FromBase64String(jwtOptions.Secret);
         var securityKey = new SymmetricSecurityKey(keyBytes);
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -48,7 +46,7 @@ public static class JwtInstaller
             )
         );
         services.AddSingleton(serviceValidationParameters);
-        
+
         services.AddAuthentication(x =>
             {
                 x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;

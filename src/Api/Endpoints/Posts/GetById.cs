@@ -17,9 +17,9 @@ public sealed class GetByIdRequest
 public sealed class GetByIdResponse
 {
     public Guid Id { get; init; }
-    public string Title { get; init; }
-    public string Body { get; init; }
-    public OwnerInfo Owner { get; init; }
+    public string Title { get; init; } = null!;
+    public string Body { get; init; } = null!;
+    public OwnerInfo Owner { get; init; } = null!;
 
 
     public sealed class OwnerInfo
