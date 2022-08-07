@@ -2,6 +2,7 @@ using Api.Common;
 using Api.Installers;
 using Api.Responses;
 using FastEndpoints;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -11,6 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.TryAddSingleton<IActionResultExecutor<ObjectResult>, ObjectResultExecutor>();
 builder.Services.AddFastEndpoints();
+ValidatorOptions.Global.LanguageManager.Enabled = false;
 builder.Services.AddControllers();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddSwagger();

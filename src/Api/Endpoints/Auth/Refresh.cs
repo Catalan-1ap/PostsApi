@@ -1,6 +1,7 @@
 ﻿using Api.Common;
 using Api.Processors;
 using Api.Responses;
+using Api.Validators;
 using Core.Interfaces;
 using Core.Models;
 using FastEndpoints;
@@ -26,14 +27,9 @@ public sealed class RefreshValidator : Validator<RefreshRequest>
 {
     public RefreshValidator()
     {
-        // TODO: Проверить
         RuleFor(x => x.Tokens)
             .NotEmpty()
-            .ChildRules(rules =>
-            {
-                rules.RuleFor(x => x.Access).NotEmpty();
-                rules.RuleFor(x => x.Refresh).NotEmpty();
-            });
+            .SetValidator(new JwtTokensValidator());
     }
 }
 
