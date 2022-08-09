@@ -4,4 +4,7 @@
 namespace Core.Entities;
 
 
-public sealed class Role : IdentityRole { }
+public sealed class Role : IdentityRole
+{
+    public static string Admin => "Admin";
+}

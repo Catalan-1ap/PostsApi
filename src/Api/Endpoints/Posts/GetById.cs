@@ -39,12 +39,10 @@ public sealed class GetPostByIdValidator : Validator<GetByIdRequest>
 }
 
 
-public sealed class GetByIdEndpoint : Endpoint<GetByIdRequest, GetByIdResponse>
+public sealed class GetByIdEndpoint : BaseEndpoint<GetByIdRequest, GetByIdResponse>
 {
-    private readonly IApplicationDbContext _dbContext;
-
-
-    public GetByIdEndpoint(IApplicationDbContext dbContext) => _dbContext = dbContext;
+    public override IIdentityService IdentityService { get; init; } = null!;
+    public override IApplicationDbContext ApplicationDbContext { get; init; } = null!;
 
 
     public override void Configure()
@@ -60,11 +58,18 @@ public sealed class GetByIdEndpoint : Endpoint<GetByIdRequest, GetByIdResponse>
     }
 
 
+    public override async Task OnAfterValidateAsync(GetByIdRequest req, CancellationToken ct = new())
+    {
+        var post = await PostShouldExistsAsync(req.Id, ct);
+
+        if (post is null)
+            await SendNotFoundAsync(ct);
+    }
+
+
     public override async Task HandleAsync(GetByIdRequest req, CancellationToken ct)
     {
-        await PrepareAsync(req, ct);
-
-        var post = await _dbContext.Posts
+        var post = await ApplicationDbContext.Posts
             .AsNoTracking()
             .Where(x => x.Id == req.Id)
             .Select(x => new GetByIdResponse
@@ -78,14 +83,8 @@ public sealed class GetByIdEndpoint : Endpoint<GetByIdRequest, GetByIdResponse>
                     UserName = x.Owner.UserName
                 }
             })
-            .SingleAsync(ct);
+            .FirstAsync(ct);
 
         await SendOkAsync(post, ct);
-    }
-
-
-    private async Task PrepareAsync(GetByIdRequest req, CancellationToken ct)
-    {
-        await ValidationRules.PostShouldExistsAsync(req.Id, _dbContext, ct);
     }
 }

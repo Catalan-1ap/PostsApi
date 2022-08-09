@@ -16,9 +16,9 @@ internal sealed class ApplicationDbContext : IdentityDbContext<User, Role, strin
     public ApplicationDbContext(DbContextOptions options) : base(options) { }
 
 
-    public new async Task SaveChangesAsync(CancellationToken cancellationToken)
+    public new async Task SaveChangesAsync(CancellationToken ct)
     {
-        await base.SaveChangesAsync(cancellationToken);
+        await base.SaveChangesAsync(ct);
     }
 
 

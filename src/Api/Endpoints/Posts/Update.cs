@@ -5,6 +5,7 @@ using Api.Responses;
 using Core.Interfaces;
 using FastEndpoints;
 using Infrastructure.Common;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace Api.Endpoints.Posts;
@@ -34,15 +35,10 @@ public sealed class UpdateValidator : Validator<UpdateRequest>
 }
 
 
-public sealed class UpdateEndpoint : Endpoint<UpdateRequest, EmptyResponse>
+public sealed class UpdateEndpoint : BaseEndpoint<UpdateRequest, EmptyResponse>
 {
-    private readonly IApplicationDbContext _dbContext;
-
-
-    public UpdateEndpoint(IApplicationDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
+    public override IIdentityService IdentityService { get; init; } = null!;
+    public override IApplicationDbContext ApplicationDbContext { get; init; } = null!;
 
 
     public override void Configure()
@@ -58,25 +54,32 @@ public sealed class UpdateEndpoint : Endpoint<UpdateRequest, EmptyResponse>
     }
 
 
-    public override async Task HandleAsync(UpdateRequest req, CancellationToken ct)
+    public override async Task OnAfterValidateAsync(UpdateRequest req, CancellationToken ct = default)
     {
-        await PrepareAsync(req, ct);
+        var post = await PostShouldExistsAsync(req.Id, ct);
 
-        var post = await _dbContext.Posts.FindAsync(new object?[] { req.Id }, ct);
+        if (post is null)
+        {
+            await SendNotFoundAsync(ct);
 
-        post!.Title = req.Title;
-        post.Body = req.Body;
+            return;
+        }
 
-        _dbContext.Posts.Update(post);
-
-        await SendOkAsync(ct);
+        if (IsOwner(post, req.UserId) == false)
+            await SendForbiddenAsync(ct);
     }
 
 
-    private async Task PrepareAsync(UpdateRequest req, CancellationToken ct)
+    public override async Task HandleAsync(UpdateRequest req, CancellationToken ct)
     {
-        var post = await ValidationRules.PostShouldExistsAsync(req.Id, _dbContext, ct);
+        var post = await ApplicationDbContext.Posts
+            .FirstAsync(x => x.Id == req.Id, ct);
 
-        ValidationRules.UserShouldOwnPost(post, req.UserId);
+        post.Title = req.Title;
+        post.Body = req.Body;
+
+        ApplicationDbContext.Posts.Update(post);
+
+        await SendOkAsync(ct);
     }
 }

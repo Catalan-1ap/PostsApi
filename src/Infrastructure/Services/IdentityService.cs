@@ -1,6 +1,7 @@
 ﻿using Core.Entities;
 using Core.Exceptions;
 using Core.Interfaces;
+using Infrastructure.Common;
 using Microsoft.AspNetCore.Identity;
 
 
@@ -29,9 +30,9 @@ public sealed class IdentityService : IIdentityService
         };
 
         var result = await _userManager.CreateAsync(user, password);
-        
+
         if (result.Errors.Any())
-            throw new SeveralErrorsException(result.Errors.Select(x => x.Description));
+            throw result.ToSeveralErrorsException();
 
         return user;
     }
@@ -42,7 +43,7 @@ public sealed class IdentityService : IIdentityService
         var user = await _userManager.FindByEmailAsync(email);
 
         if (user is null)
-            throw NotFoundException.Make(nameof(User), email);
+            throw new BusinessException("Email/Password combination is wrong");
 
         var isPasswordAreValid = await _userManager.CheckPasswordAsync(user, password);
 
@@ -53,7 +54,18 @@ public sealed class IdentityService : IIdentityService
     }
 
 
-    public async Task<User> GetByIdAsync(string id) => await _userManager.FindByIdAsync(id);
+    public async Task AddToRoleAsync(User user, string role)
+    {
+        var result = await _userManager.AddToRoleAsync(user, role);
+
+        if (result.Errors.Any())
+            throw result.ToSeveralErrorsException();
+    }
+
+
+    public async Task<IList<string>> GetRolesAsync(User user) => await _userManager.GetRolesAsync(user);
+
+    public async Task<bool> IsInRoleAsync(User user, string role) => await _userManager.IsInRoleAsync(user, role);
 
 
     public async Task<bool> IsUsernameUniqueAsync(string userName)

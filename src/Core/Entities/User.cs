@@ -6,5 +6,5 @@ namespace Core.Entities;
 
 public sealed class User : IdentityUser
 {
-    public List<Post> Posts { get; private set; } = new();
+    public IReadOnlyList<Post> Posts { get; private set; } = null!;
 }

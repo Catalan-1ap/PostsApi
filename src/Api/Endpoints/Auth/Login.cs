@@ -51,7 +51,7 @@ public sealed class LoginEndpoint : Endpoint<LoginRequest, LoginResponse>
         Post(ApiRoutes.Auth.Login);
         AllowAnonymous();
         PostProcessors(new SaveChangesPostProcessor<LoginRequest, LoginResponse>());
-        
+
         Summary(x =>
         {
             x.Response<LoginResponse>(StatusCodes.Status200OK, "JWT tokens");
@@ -65,7 +65,7 @@ public sealed class LoginEndpoint : Endpoint<LoginRequest, LoginResponse>
     {
         var user = await _identityService.LoginAsync(req.Email, req.Password);
 
-        var tokens = _jwtService.Access(user);
+        var tokens = await _jwtService.AccessAsync(user);
 
         await SendOkAsync(new()
             {

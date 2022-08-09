@@ -13,6 +13,7 @@ public static class ApiRoutes
         public const string GetById = $"{Root}/{Base}/{{id:guid}}";
         public const string Create = $"{Root}/{Base}";
         public const string Update = $"{Root}/{Base}/{{id:guid}}";
+        public const string Delete = $"{Root}/{Base}/{{id:guid}}";
     }
 
 

@@ -1,6 +1,5 @@
 ﻿using Api.Common;
 using Api.Processors;
-using Api.Responses;
 using Core.Entities;
 using Core.Interfaces;
 using FastEndpoints;
@@ -38,22 +37,17 @@ public sealed class CreateValidator : Validator<CreateRequest>
 }
 
 
-public sealed class CreateEndpoint : Endpoint<CreateRequest, CreateResponse>
+public sealed class CreateEndpoint : BaseEndpoint<CreateRequest, CreateResponse>
 {
-    private readonly IApplicationDbContext _dbContext;
-
-
-    public CreateEndpoint(IApplicationDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
+    public override IIdentityService IdentityService { get; init; } = null!;
+    public override IApplicationDbContext ApplicationDbContext { get; init; } = null!;
 
 
     public override void Configure()
     {
         Post(ApiRoutes.Posts.Create);
         PostProcessors(new SaveChangesPostProcessor<CreateRequest, CreateResponse>());
-        
+
         Summary(x =>
         {
             x.Response<CreateResponse>(StatusCodes.Status201Created);
@@ -70,7 +64,7 @@ public sealed class CreateEndpoint : Endpoint<CreateRequest, CreateResponse>
             OwnerId = req.UserId
         };
 
-        _dbContext.Posts.Add(newPost);
+        ApplicationDbContext.Posts.Add(newPost);
 
         var res = new CreateResponse
         {

@@ -1,7 +1,5 @@
-﻿using Api.Endpoints.Auth;
-using Core.Entities;
+﻿using Core.Entities;
 using Core.Interfaces;
-using FastEndpoints;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,8 +31,15 @@ public class SeedData
     public async Task SeedAsync()
     {
         var identity = _serviceProvider.GetRequiredService<IIdentityService>();
+        var roleManager = _serviceProvider.GetRequiredService<RoleManager<Role>>();
 
-        await identity.RegisterAsync("admin", "admin@example.com", "VeryStrongPassword");
+        if (await roleManager.RoleExistsAsync(Role.Admin) == false)
+            await roleManager.CreateAsync(new() { Name = Role.Admin });
+
+        var admin = await identity.RegisterAsync("admin", "admin@example.com", "VeryStrongPassword");
+        await identity.AddToRoleAsync(admin, Role.Admin);
+
         await identity.RegisterAsync("notadmin", "notadmin@example.com", "VeryWeakPassword");
+        await identity.RegisterAsync("notadmin1", "notadmin1@example.com", "VeryWeakPassword1");
     }
 }

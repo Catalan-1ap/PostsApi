@@ -1,7 +1,4 @@
 ﻿using Api.Common;
-using Core.Entities;
-using Core.Exceptions;
-using Core.Interfaces;
 using Core.StorageContracts;
 using FluentValidation;
 
@@ -26,24 +23,4 @@ internal static class ValidationRules
         builder
             .NotEmptyWithMessage()
             .MaximumLengthWithMessage(PostStorageContract.BodyMaxLength);
-
-
-    public static async Task<Post> PostShouldExistsAsync(
-        Guid id,
-        IApplicationDbContext dbContext,
-        CancellationToken cancellationToken
-    )
-    {
-        var post = await dbContext.Posts
-            .FindAsync(new object[] { id }, cancellationToken);
-
-        return post ?? throw NotFoundException.Make(nameof(Post), id);
-    }
-
-
-    public static void UserShouldOwnPost(Post post, string userId)
-    {
-        if (post.OwnerId != userId)
-            throw new BusinessException("You does not own this post");
-    }
 }

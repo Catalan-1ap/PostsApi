@@ -1,6 +1,5 @@
 ﻿using Api.Common;
 using Api.Processors;
-using Api.Responses;
 using Core.Interfaces;
 using Core.Models;
 using FastEndpoints;
@@ -46,11 +45,11 @@ public sealed class RegisterValidator : Validator<RegisterRequest>
     }
 
 
-    private async Task<bool> UniqueUsernameAsync(string userName, CancellationToken cancellationToken) =>
+    private async Task<bool> UniqueUsernameAsync(string userName, CancellationToken ct) =>
         await _identityService.IsUsernameUniqueAsync(userName);
 
 
-    private async Task<bool> UniqueEmailAsync(string email, CancellationToken cancellationToken) =>
+    private async Task<bool> UniqueEmailAsync(string email, CancellationToken ct) =>
         await _identityService.IsEmailUniqueAsync(email);
 }
 
@@ -85,7 +84,7 @@ public sealed class RegisterEndpoint : Endpoint<RegisterRequest, RegisterRespons
     public override async Task HandleAsync(RegisterRequest req, CancellationToken ct)
     {
         var user = await _identityService.RegisterAsync(req.UserName, req.Email, req.Password);
-        var tokens = _jwtService.Access(user);
+        var tokens = await _jwtService.AccessAsync(user);
 
         await SendOkAsync(new()
             {

@@ -7,7 +7,7 @@ namespace Core.Interfaces;
 
 public interface IJwtService
 {
-    JwtTokens Access(User user);
+    Task<JwtTokens> AccessAsync(User user);
 
     Task<JwtTokens> RefreshAsync(JwtTokens tokens);
 }

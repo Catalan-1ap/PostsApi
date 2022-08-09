@@ -10,9 +10,13 @@ public interface IIdentityService
 
     Task<User> LoginAsync(string email, string password);
 
-    Task<User> GetByIdAsync(string id);
+    Task AddToRoleAsync(User user, string role);
 
     Task<bool> IsUsernameUniqueAsync(string userName);
 
     Task<bool> IsEmailUniqueAsync(string email);
+
+    Task<IList<string>> GetRolesAsync(User user);
+
+    Task<bool> IsInRoleAsync(User user, string role);
 }

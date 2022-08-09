@@ -31,7 +31,7 @@ public class ExceptionMiddleware
     {
         IActionResult result = exception switch
         {
-            NotFoundException e => new NotFoundObjectResult(new SingleErrorResponse(e.Message)),
+            NotFoundException e => new NotFoundResult(),
             SeveralErrorsException e => new BadRequestObjectResult(new SeveralErrorsResponse(e.Errors)),
             BusinessException e => new BadRequestObjectResult(new SingleErrorResponse(e.Message)),
             _ => new ObjectResult("Something went wrong...")

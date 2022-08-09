@@ -17,22 +17,30 @@ public sealed class JwtService : IJwtService
 {
     private readonly IDateTimeService _dateTimeService;
     private readonly IApplicationDbContext _dbContext;
+    private readonly IIdentityService _identityService;
     private readonly IJwtSettings _jwtSettings;
 
 
     public JwtService(
         IJwtSettings jwtSettings,
         IApplicationDbContext dbContext,
-        IDateTimeService dateTimeService
+        IDateTimeService dateTimeService,
+        IIdentityService identityService
     )
     {
         _jwtSettings = jwtSettings;
         _dateTimeService = dateTimeService;
+        _identityService = identityService;
         _dbContext = dbContext;
     }
 
 
-    public JwtTokens Access(User user) => CreateTokens(user.Id, CreateClaimsForUser(user));
+    public async Task<JwtTokens> AccessAsync(User user)
+    {
+        var claims = await CreateClaimsForUser(user);
+
+        return CreateTokens(user.Id, claims);
+    }
 
 
     public async Task<JwtTokens> RefreshAsync(JwtTokens tokens)
@@ -45,13 +53,14 @@ public sealed class JwtService : IJwtService
             .SingleOrDefaultAsync(token => token.Token == refresh && token.UserId == userId);
 
         if (tokenDetails is null)
-            throw NotFoundException.Make(nameof(RefreshToken), refresh);
+            throw new NotFoundException();
 
         _dbContext.RefreshTokens.Remove(tokenDetails);
 
         if (IsTokenExpired(tokenDetails))
         {
             await _dbContext.SaveChangesAsync(CancellationToken.None);
+
             throw new BusinessException("Token has been expired");
         }
 
@@ -69,19 +78,21 @@ public sealed class JwtService : IJwtService
         return new(accessToken, refreshToken);
     }
 
-    
+
     private string CreateAccessToken(IEnumerable<Claim> claims)
     {
-        var securityToken = new JwtSecurityToken(
-            issuer: _jwtSettings.Issuer,
-            claims: claims,
-            signingCredentials: _jwtSettings.Credentials,
-            expires: _jwtSettings.ExpiresForAccessToken,
-            notBefore: _dateTimeService.UtcNow
-        );
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new(claims),
+            Issuer = _jwtSettings.Issuer,
+            SigningCredentials = _jwtSettings.Credentials,
+            Expires = _jwtSettings.ExpiresForAccessToken,
+            NotBefore = _dateTimeService.UtcNow
+        };
 
         var handler = new JwtSecurityTokenHandler();
-        var accessToken = handler.WriteToken(securityToken);
+        var jwtToken = handler.CreateToken(tokenDescriptor);
+        var accessToken = handler.WriteToken(jwtToken);
 
         return accessToken;
     }
@@ -93,7 +104,7 @@ public sealed class JwtService : IJwtService
         var bytes = new byte[128];
         Random.Shared.NextBytes(bytes);
         var refreshToken = Convert.ToBase64String(bytes);
-        
+
         _dbContext.RefreshTokens.Add(new()
         {
             Token = refreshToken,
@@ -106,22 +117,28 @@ public sealed class JwtService : IJwtService
     }
 
 
-    private static IEnumerable<Claim> CreateClaimsForUser(User user)
+    private async Task<IEnumerable<Claim>> CreateClaimsForUser(User user)
     {
-        return new Claim[]
+        var claims = new List<Claim>
         {
             new(Claims.Id, user.Id),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
+
+        var rolesAsClaims = (await _identityService.GetRolesAsync(user))
+            .Select(userRole => new Claim(ClaimTypes.Role, userRole));
+        claims.AddRange(rolesAsClaims);
+
+        return claims;
     }
-    
+
 
     private ClaimsPrincipal GetPrincipalFromToken(string accessToken)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         ClaimsPrincipal principal;
         SecurityToken validatedToken;
-        
+
         try
         {
             principal = tokenHandler.ValidateToken(accessToken, _jwtSettings.TokenValidationParameters, out validatedToken);
@@ -130,7 +147,7 @@ public sealed class JwtService : IJwtService
         {
             throw new BusinessException("Invalid token");
         }
-        
+
         if (IsJwtTokenHasValidAlghorithm(validatedToken) == false)
             throw new BusinessException("Invalid token");
 
@@ -141,7 +158,8 @@ public sealed class JwtService : IJwtService
     private bool IsJwtTokenHasValidAlghorithm(SecurityToken token) =>
         token is JwtSecurityToken jwtSecurityToken &&
         jwtSecurityToken.Header.Alg.Equals(_jwtSettings.Credentials.Algorithm, StringComparison.OrdinalIgnoreCase);
-    
-    
-    private bool IsTokenExpired(RefreshToken tokenDetails) => DateOnly.FromDateTime(_dateTimeService.UtcNow) > tokenDetails.ExpiredAt;
+
+
+    private bool IsTokenExpired(RefreshToken tokenDetails) =>
+        DateOnly.FromDateTime(_dateTimeService.UtcNow) > tokenDetails.ExpiredAt;
 }
