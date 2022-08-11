@@ -1,4 +1,5 @@
 ﻿using Api.Common;
+using Api.Endpoints.Posts.Common;
 using Api.Processors;
 using Core.Entities;
 using Core.Interfaces;
@@ -41,6 +42,7 @@ public sealed class CreateEndpoint : BaseEndpoint<CreateRequest, CreateResponse>
 {
     public override IIdentityService IdentityService { get; init; } = null!;
     public override IApplicationDbContext ApplicationDbContext { get; init; } = null!;
+    public IDateTimeService DateTimeService { get; init; } = null!;
 
 
     public override void Configure()
@@ -61,7 +63,8 @@ public sealed class CreateEndpoint : BaseEndpoint<CreateRequest, CreateResponse>
         {
             Title = req.Title,
             Body = req.Body,
-            OwnerId = req.UserId
+            OwnerId = req.UserId,
+            CreatedAt = DateTimeService.UtcNow
         };
 
         ApplicationDbContext.Posts.Add(newPost);

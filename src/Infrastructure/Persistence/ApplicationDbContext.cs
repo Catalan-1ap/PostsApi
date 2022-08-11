@@ -9,8 +9,10 @@ namespace Infrastructure.Persistence;
 
 internal sealed class ApplicationDbContext : IdentityDbContext<User, Role, string>, IApplicationDbContext
 {
-    public DbSet<Post> Posts => Set<Post>();
-    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<Post> Posts { get; set; } = null!;
+    public DbSet<Like> Likes { get; set; } = null!;
+    public DbSet<Dislike> Dislikes { get; set; } = null!;
+    public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
 
 
     public ApplicationDbContext(DbContextOptions options) : base(options) { }

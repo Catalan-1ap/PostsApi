@@ -22,6 +22,9 @@ public class ExceptionMiddleware
         }
         catch (Exception ex)
         {
+            if (httpContext.Response.HasStarted)
+                return;
+
             await HandleExceptionAsync(httpContext, ex);
         }
     }

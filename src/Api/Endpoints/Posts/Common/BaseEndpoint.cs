@@ -4,7 +4,7 @@ using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 
 
-namespace Api.Endpoints.Posts;
+namespace Api.Endpoints.Posts.Common;
 
 
 public abstract class BaseEndpoint<TRequest, TResponse> : Endpoint<TRequest, TResponse>
@@ -18,6 +18,7 @@ public abstract class BaseEndpoint<TRequest, TResponse> : Endpoint<TRequest, TRe
     public async Task<Post?> PostShouldExistsAsync(Guid id, CancellationToken ct)
     {
         var post = await ApplicationDbContext.Posts
+            .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id, ct);
 
         return post;

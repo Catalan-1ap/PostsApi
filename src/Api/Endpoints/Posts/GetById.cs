@@ -1,4 +1,5 @@
 ﻿using Api.Common;
+using Api.Endpoints.Posts.Common;
 using Api.Responses;
 using Core.Interfaces;
 using FastEndpoints;
@@ -10,7 +11,7 @@ namespace Api.Endpoints.Posts;
 
 public sealed class GetByIdRequest
 {
-    public Guid Id { get; init; }
+    public Guid PostId { get; init; }
 }
 
 
@@ -19,6 +20,9 @@ public sealed class GetByIdResponse
     public Guid Id { get; init; }
     public string Title { get; init; } = null!;
     public string Body { get; init; } = null!;
+    public DateTime CreatedAt { get; init; }
+    public DateTime? UpdatedAt { get; init; }
+    public int Rating { get; init; }
     public OwnerInfo Owner { get; init; } = null!;
 
 
@@ -34,7 +38,7 @@ public sealed class GetPostByIdValidator : Validator<GetByIdRequest>
 {
     public GetPostByIdValidator()
     {
-        RuleFor(x => x.Id).ApplyIdRules();
+        RuleFor(x => x.PostId).ApplyIdRules();
     }
 }
 
@@ -60,7 +64,7 @@ public sealed class GetByIdEndpoint : BaseEndpoint<GetByIdRequest, GetByIdRespon
 
     public override async Task OnAfterValidateAsync(GetByIdRequest req, CancellationToken ct = new())
     {
-        var post = await PostShouldExistsAsync(req.Id, ct);
+        var post = await PostShouldExistsAsync(req.PostId, ct);
 
         if (post is null)
             await SendNotFoundAsync(ct);
@@ -71,12 +75,15 @@ public sealed class GetByIdEndpoint : BaseEndpoint<GetByIdRequest, GetByIdRespon
     {
         var post = await ApplicationDbContext.Posts
             .AsNoTracking()
-            .Where(x => x.Id == req.Id)
+            .Where(x => x.Id == req.PostId)
             .Select(x => new GetByIdResponse
             {
                 Id = x.Id,
                 Body = x.Body,
                 Title = x.Title,
+                CreatedAt = x.CreatedAt,
+                UpdatedAt = x.UpdatedAt,
+                Rating = x.Likes.Count() - x.Dislikes.Count(),
                 Owner = new()
                 {
                     Id = x.Owner.Id,

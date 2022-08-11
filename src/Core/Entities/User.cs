@@ -6,5 +6,7 @@ namespace Core.Entities;
 
 public sealed class User : IdentityUser
 {
-    public IReadOnlyList<Post> Posts { get; private set; } = null!;
+    public ICollection<Post> Posts { get; private set; } = null!;
+    public ICollection<Like> Likes { get; private set; } = null!;
+    public ICollection<Dislike> Dislikes { get; private set; } = null!;
 }

@@ -1,6 +1,8 @@
 ﻿using Api.Common;
+using Api.Endpoints.Posts.Common;
 using Api.Processors;
 using Api.Responses;
+using Core.Entities;
 using Core.Interfaces;
 using FastEndpoints;
 using Infrastructure.Common;
@@ -15,7 +17,7 @@ public sealed class DeleteRequest
     [FromClaim(Claims.Id)]
     public string UserId { get; init; } = null!;
     [JsonIgnore]
-    public Guid Id { get; init; }
+    public Guid PostId { get; init; }
 }
 
 
@@ -23,7 +25,7 @@ public sealed class DeleteValidator : Validator<DeleteRequest>
 {
     public DeleteValidator()
     {
-        RuleFor(x => x.Id).ApplyIdRules();
+        RuleFor(x => x.PostId).ApplyIdRules();
     }
 }
 
@@ -43,18 +45,18 @@ public sealed class DeleteEndpoint : BaseEndpoint<DeleteRequest, EmptyResponse>
         {
             x.Response();
             x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound);
+            x.Response(StatusCodes.Status403Forbidden);
         });
     }
 
 
     public override async Task OnAfterValidateAsync(DeleteRequest req, CancellationToken ct = default)
     {
-        var post = await PostShouldExistsAsync(req.Id, ct);
+        var post = await PostShouldExistsAsync(req.PostId, ct);
 
         if (post is null)
         {
             await SendNotFoundAsync(ct);
-
             return;
         }
 
@@ -63,5 +65,15 @@ public sealed class DeleteEndpoint : BaseEndpoint<DeleteRequest, EmptyResponse>
     }
 
 
-    public override async Task HandleAsync(DeleteRequest req, CancellationToken ct) { }
+    public override async Task HandleAsync(DeleteRequest req, CancellationToken ct)
+    {
+        var post = new Post
+        {
+            Id = req.PostId
+        };
+
+        ApplicationDbContext.Posts.Remove(post);
+
+        await SendOkAsync(ct);
+    }
 }
