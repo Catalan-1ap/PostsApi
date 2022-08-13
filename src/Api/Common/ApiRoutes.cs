@@ -10,6 +10,7 @@ public static class ApiRoutes
     {
         private const string Base = "posts";
 
+        public const string GetAll = $"{Root}/{Base}";
         public const string GetById = $"{Root}/{Base}/{{postId:guid}}";
         public const string Create = $"{Root}/{Base}";
         public const string Update = $"{Root}/{Base}/{{postId:guid}}";

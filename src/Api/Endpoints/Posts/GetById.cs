@@ -3,6 +3,7 @@ using Api.Endpoints.Posts.Common;
 using Api.Responses;
 using Core.Interfaces;
 using FastEndpoints;
+using LinqKit;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -75,6 +76,7 @@ public sealed class GetByIdEndpoint : BaseEndpoint<GetByIdRequest, GetByIdRespon
     {
         var post = await ApplicationDbContext.Posts
             .AsNoTracking()
+            .AsExpandable()
             .Where(x => x.Id == req.PostId)
             .Select(x => new GetByIdResponse
             {
@@ -83,7 +85,7 @@ public sealed class GetByIdEndpoint : BaseEndpoint<GetByIdRequest, GetByIdRespon
                 Title = x.Title,
                 CreatedAt = x.CreatedAt,
                 UpdatedAt = x.UpdatedAt,
-                Rating = x.Likes.Count() - x.Dislikes.Count(),
+                Rating = Core.Entities.Post.RatingExpression.Invoke(x),
                 Owner = new()
                 {
                     Id = x.Owner.Id,

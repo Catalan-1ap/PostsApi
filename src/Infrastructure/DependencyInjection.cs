@@ -2,6 +2,7 @@
 using Core.Interfaces;
 using Infrastructure.Options;
 using Infrastructure.Persistence;
+using Infrastructure.Persistence.Interceptors;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,8 @@ public static class DependencyInjection
 {
     public static void AddInfrastructure(this IServiceCollection services, PostgresOptions postgresOptions)
     {
+        services.AddScoped<AuditableSaveChangesInterceptor>();
+
         services.AddDbContext<ApplicationDbContext>(PostgresOptionsFactory.Make(postgresOptions));
         services.AddIdentity<User, Role>()
             .AddEntityFrameworkStores<ApplicationDbContext>()

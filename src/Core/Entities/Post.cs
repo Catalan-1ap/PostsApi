@@ -1,8 +1,13 @@
-﻿namespace Core.Entities;
+﻿using System.Linq.Expressions;
 
 
-public sealed class Post
+namespace Core.Entities;
+
+
+public sealed class Post : IAuditable
 {
+
+    public static Expression<Func<Post, int>> RatingExpression = x => x.Likes.Count() - x.Dislikes.Count();
     public Guid Id { get; set; }
     public string Title { get; set; } = null!;
     public string Body { get; set; } = null!;

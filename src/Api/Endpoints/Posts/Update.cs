@@ -83,7 +83,6 @@ public sealed class UpdateEndpoint : BaseEndpoint<UpdateRequest, EmptyResponse>
 
         post.Title = req.Title;
         post.Body = req.Body;
-        post.UpdatedAt = DateTimeService.UtcNow;
 
         await SendOkAsync(ct);
     }

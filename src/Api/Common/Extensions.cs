@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
 using Api.Responses;
+using Core.Exceptions;
+using Core.Models;
 using FluentValidation;
 using FluentValidation.Results;
-using Infrastructure.Common;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace Api.Common;
@@ -11,6 +12,35 @@ namespace Api.Common;
 
 public static class Extensions
 {
+    public static async Task<Paginated<T>> Paginate<T>(
+        this IQueryable<T> queryable,
+        IPaginatable paginatable,
+        CancellationToken ct = default
+    )
+    {
+        var size = paginatable.PageSize;
+        var page = paginatable.Page;
+        var total = await queryable.CountAsync(ct);
+        var pages = (int)Math.Ceiling(total / (double)size);
+
+        if (page > pages)
+            throw new NotFoundException();
+
+        var data = await queryable
+            .Skip((page - 1) * size)
+            .Take(size)
+            .ToArrayAsync(ct);
+
+        return new()
+        {
+            Page = page,
+            PageSize = size,
+            TotalPages = pages,
+            Data = data
+        };
+    }
+
+
     public static ValidationErrorResponse ToValidationErrorResponse(this IEnumerable<ValidationFailure> failures)
     {
         var errors = failures

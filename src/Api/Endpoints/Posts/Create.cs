@@ -64,7 +64,6 @@ public sealed class CreateEndpoint : BaseEndpoint<CreateRequest, CreateResponse>
             Title = req.Title,
             Body = req.Body,
             OwnerId = req.UserId,
-            CreatedAt = DateTimeService.UtcNow
         };
 
         ApplicationDbContext.Posts.Add(newPost);

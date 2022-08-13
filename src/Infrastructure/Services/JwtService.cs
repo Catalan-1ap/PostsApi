@@ -45,12 +45,11 @@ public sealed class JwtService : IJwtService
 
     public async Task<JwtTokens> RefreshAsync(JwtTokens tokens)
     {
-        var (access, refresh) = tokens;
-        var principal = GetPrincipalFromToken(access);
+        var principal = GetPrincipalFromToken(tokens.Access);
         var userId = principal.FindFirst(Claims.Id)!.Value;
 
         var tokenDetails = await _dbContext.RefreshTokens
-            .SingleOrDefaultAsync(token => token.Token == refresh && token.UserId == userId);
+            .SingleOrDefaultAsync(token => token.Token == tokens.Refresh && token.UserId == userId);
 
         if (tokenDetails is null)
             throw new NotFoundException();
@@ -75,7 +74,11 @@ public sealed class JwtService : IJwtService
         var accessToken = CreateAccessToken(claims);
         var refreshToken = CreateRefreshToken(userId);
 
-        return new(accessToken, refreshToken);
+        return new()
+        {
+            Access = accessToken,
+            Refresh = refreshToken
+        };
     }
 
 
