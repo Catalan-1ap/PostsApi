@@ -1,14 +1,25 @@
-﻿namespace Infrastructure.Persistence;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 
 
-// internal class ApplicationDbContextDesignTimeFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
-// {
-//     public ApplicationDbContext CreateDbContext(string[] args)
-//     {
-//         var builder = new DbContextOptionsBuilder();
-//
-//         builder.UseNpgsql();
-//
-//         return new(builder.Options);
-//     }
-// }
+namespace Infrastructure.Persistence;
+
+
+internal class ApplicationDbContextDesignTimeFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
+{
+    public ApplicationDbContext CreateDbContext(string[] args)
+    {
+        var builder = new DbContextOptionsBuilder();
+        var optionsBuilder = PostgresOptionsFactory.Make(new()
+        {
+            Host = "localhost",
+            Port = 5432,
+            User = "sa",
+            Password = "pass"
+        });
+
+        optionsBuilder.Invoke(builder);
+
+        return new(builder.Options);
+    }
+}

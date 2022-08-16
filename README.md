@@ -17,7 +17,7 @@ In "Production" Mode:
 In "Development" Mode:
 1. Open terminal in root directory
 2. Run `docker-compose --env-file ./docker.dev.env up database`,
-   if you change env, make sure you update them in `launchSettings.json`
+   if you change env, make sure you update them in `launchSettings.json` also update ApplicationDbContextDesignTimeFactory
 3. Wait until postgres is available
 4. Start api from your IDE
 5. Work...

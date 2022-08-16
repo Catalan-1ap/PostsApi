@@ -10,7 +10,7 @@ namespace Infrastructure.Persistence;
 
 internal sealed class ApplicationDbContext : IdentityDbContext<User, Role, string>, IApplicationDbContext
 {
-    private readonly AuditableSaveChangesInterceptor _auditableSaveChangesInterceptor;
+    private readonly AuditableSaveChangesInterceptor _auditableSaveChangesInterceptor = null!;
 
     public DbSet<Post> Posts { get; set; } = null!;
     public DbSet<Like> Likes { get; set; } = null!;
@@ -21,8 +21,11 @@ internal sealed class ApplicationDbContext : IdentityDbContext<User, Role, strin
     public ApplicationDbContext(
         DbContextOptions options,
         AuditableSaveChangesInterceptor auditableSaveChangesInterceptor
-    ) : base(options) =>
+    ) : this(options) =>
         _auditableSaveChangesInterceptor = auditableSaveChangesInterceptor;
+
+
+    internal ApplicationDbContext(DbContextOptions options) : base(options) { }
 
 
     public new async Task SaveChangesAsync(CancellationToken ct)
