@@ -13,7 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace Infrastructure.Services;
 
 
-public sealed class JwtService : IJwtService
+public sealed class DefaultJwtService : IJwtService
 {
     private readonly IDateTimeService _dateTimeService;
     private readonly IApplicationDbContext _dbContext;
@@ -21,7 +21,7 @@ public sealed class JwtService : IJwtService
     private readonly IJwtSettings _jwtSettings;
 
 
-    public JwtService(
+    public DefaultJwtService(
         IJwtSettings jwtSettings,
         IApplicationDbContext dbContext,
         IDateTimeService dateTimeService,
@@ -108,13 +108,15 @@ public sealed class JwtService : IJwtService
         Random.Shared.NextBytes(bytes);
         var refreshToken = Convert.ToBase64String(bytes);
 
-        _dbContext.RefreshTokens.Add(new()
-        {
-            Token = refreshToken,
-            UserId = userId,
-            CreatedAt = _dateTimeService.UtcNowDate,
-            ExpiredAt = DateOnly.FromDateTime(_jwtSettings.ExpiresForRefreshToken)
-        });
+        _dbContext.RefreshTokens.Add(
+            new()
+            {
+                Token = refreshToken,
+                UserId = userId,
+                CreatedAt = _dateTimeService.UtcNowDate,
+                ExpiredAt = DateOnly.FromDateTime(_jwtSettings.ExpiresForRefreshToken)
+            }
+        );
 
         return refreshToken;
     }

@@ -24,9 +24,10 @@ public static class DependencyInjection
             .AddDefaultTokenProviders();
         services.RemoveIdentityValidation();
 
-        services.AddSingleton<IDateTimeService, DateTimeService>();
-        services.AddScoped<IIdentityService, IdentityService>();
-        services.AddScoped<IJwtService, JwtService>();
+        services.AddSingleton<IDateTimeService, SystemDateTimeService>();
+        services.AddScoped<IIdentityService, AspIdentityService>();
+        services.AddScoped<IAvatarRepository, PhysicalAvatarRepository>();
+        services.AddScoped<IJwtService, DefaultJwtService>();
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
     }
 

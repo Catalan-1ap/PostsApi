@@ -4,7 +4,7 @@
 namespace Infrastructure.Services;
 
 
-public sealed class DateTimeService : IDateTimeService
+public sealed class SystemDateTimeService : IDateTimeService
 {
     public DateTime UtcNow => DateTime.UtcNow;
     public DateOnly UtcNowDate => DateOnly.FromDateTime(UtcNow);

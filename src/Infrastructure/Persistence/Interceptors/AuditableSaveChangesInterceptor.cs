@@ -15,13 +15,14 @@ public class AuditableSaveChangesInterceptor : SaveChangesInterceptor
     public AuditableSaveChangesInterceptor(IDateTimeService dateTimeService) => _dateTimeService = dateTimeService;
 
 
-    public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(
+    public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
         DbContextEventData eventData,
         InterceptionResult<int> result,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         if (eventData.Context is null)
-            return result;
+            return ValueTask.FromResult(result);
 
         foreach (var auditable in eventData.Context.ChangeTracker.Entries<IAuditable>())
             switch (auditable.State)
@@ -34,6 +35,6 @@ public class AuditableSaveChangesInterceptor : SaveChangesInterceptor
                     break;
             }
 
-        return result;
+        return ValueTask.FromResult(result);
     }
 }

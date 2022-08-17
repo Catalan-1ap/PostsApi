@@ -1,5 +1,5 @@
 ﻿using Api.Common;
-using Api.Processors;
+using Api.Endpoints.Users.Common;
 using Api.Responses;
 using Core.Interfaces;
 using Core.Models;
@@ -7,7 +7,7 @@ using FastEndpoints;
 using FluentValidation;
 
 
-namespace Api.Endpoints.Auth;
+namespace Api.Endpoints.Users;
 
 
 public sealed class LoginRequest
@@ -28,15 +28,18 @@ public sealed class LoginValidator : Validator<LoginRequest>
     public LoginValidator()
     {
         RuleFor(x => x.Email).NotEmpty();
+
         RuleFor(x => x.Password).NotEmpty();
     }
 }
 
 
-public sealed class LoginEndpoint : Endpoint<LoginRequest, LoginResponse>
+public sealed class LoginEndpoint : BaseEndpoint<LoginRequest, LoginResponse>
 {
     private readonly IIdentityService _identityService;
     private readonly IJwtService _jwtService;
+
+    public override IApplicationDbContext ApplicationDbContext { get; init; }
 
 
     public LoginEndpoint(IIdentityService identityService, IJwtService jwtService)
@@ -48,26 +51,28 @@ public sealed class LoginEndpoint : Endpoint<LoginRequest, LoginResponse>
 
     public override void Configure()
     {
-        Post(ApiRoutes.Auth.Login);
+        Post(ApiRoutes.Users.Login);
         AllowAnonymous();
-        PostProcessors(new SaveChangesPostProcessor<LoginRequest, LoginResponse>());
 
-        Summary(x =>
-        {
-            x.Response<LoginResponse>(StatusCodes.Status200OK, "JWT tokens");
-            x.Response<SingleErrorResponse>(StatusCodes.Status400BadRequest, "Email/Password combination is wrong");
-            x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound, "User does not exists");
-        });
+        Summary(
+            x =>
+            {
+                x.Response<LoginResponse>(StatusCodes.Status200OK, "JWT tokens");
+                x.Response<SingleErrorResponse>(StatusCodes.Status400BadRequest, "Email/Password combination is wrong");
+                x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound, "User does not exists");
+            }
+        );
     }
 
 
     public override async Task HandleAsync(LoginRequest req, CancellationToken ct)
     {
         var user = await _identityService.LoginAsync(req.Email, req.Password);
-
         var tokens = await _jwtService.AccessAsync(user);
 
-        await SendOkAsync(new()
+        await ApplicationDbContext.SaveChangesAsync(ct);
+        await SendOkAsync(
+            new()
             {
                 Tokens = tokens
             },

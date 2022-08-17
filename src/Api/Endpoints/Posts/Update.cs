@@ -1,7 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using Api.Common;
 using Api.Endpoints.Posts.Common;
-using Api.Processors;
 using Api.Responses;
 using Core.Entities;
 using Core.Interfaces;
@@ -46,14 +45,15 @@ public sealed class UpdateEndpoint : BaseEndpoint<UpdateRequest, EmptyResponse>
     public override void Configure()
     {
         Put(ApiRoutes.Posts.Update);
-        PostProcessors(new SaveChangesPostProcessor<UpdateRequest, EmptyResponse>());
 
-        Summary(x =>
-        {
-            x.Response();
-            x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound);
-            x.Response(StatusCodes.Status403Forbidden);
-        });
+        Summary(
+            x =>
+            {
+                x.Response();
+                x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound);
+                x.Response(StatusCodes.Status403Forbidden);
+            }
+        );
     }
 
 
@@ -84,6 +84,7 @@ public sealed class UpdateEndpoint : BaseEndpoint<UpdateRequest, EmptyResponse>
         post.Title = req.Title;
         post.Body = req.Body;
 
+        await ApplicationDbContext.SaveChangesAsync(ct);
         await SendOkAsync(ct);
     }
 }

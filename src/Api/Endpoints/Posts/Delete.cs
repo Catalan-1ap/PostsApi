@@ -1,6 +1,5 @@
 ﻿using Api.Common;
 using Api.Endpoints.Posts.Common;
-using Api.Processors;
 using Api.Responses;
 using Core.Entities;
 using Core.Interfaces;
@@ -39,14 +38,15 @@ public sealed class DeleteEndpoint : BaseEndpoint<DeleteRequest, EmptyResponse>
     public override void Configure()
     {
         Delete(ApiRoutes.Posts.Delete);
-        PostProcessors(new SaveChangesPostProcessor<DeleteRequest, EmptyResponse>());
 
-        Summary(x =>
-        {
-            x.Response();
-            x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound);
-            x.Response(StatusCodes.Status403Forbidden);
-        });
+        Summary(
+            x =>
+            {
+                x.Response();
+                x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound);
+                x.Response(StatusCodes.Status403Forbidden);
+            }
+        );
     }
 
 
@@ -74,6 +74,7 @@ public sealed class DeleteEndpoint : BaseEndpoint<DeleteRequest, EmptyResponse>
 
         ApplicationDbContext.Posts.Remove(post);
 
+        await ApplicationDbContext.SaveChangesAsync(ct);
         await SendOkAsync(ct);
     }
 }

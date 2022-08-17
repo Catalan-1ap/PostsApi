@@ -20,12 +20,18 @@ public static class ApiRoutes
     }
 
 
-    public static class Auth
+    public static class Users
     {
-        private const string Base = "auth";
+        private const string Base = "users";
 
         public const string Register = $"{Root}/{Base}/register";
         public const string Login = $"{Root}/{Base}/login";
         public const string Refresh = $"{Root}/{Base}/refresh";
+    }
+
+
+    public static class AvatarsStatic
+    {
+        public const string RequestPath = "/avatars";
     }
 }

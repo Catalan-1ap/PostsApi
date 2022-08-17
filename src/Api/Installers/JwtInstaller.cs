@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Api.Common;
+﻿using Api.Common;
+using Api.Options;
 using Core.Interfaces;
 using Core.Settings;
 using Infrastructure.Settings;
@@ -35,51 +35,32 @@ public static class JwtInstaller
 
         var serviceValidationParameters = tokenValidationParameters.Clone();
         serviceValidationParameters.ValidateLifetime = false;
-        services.AddSingleton<IJwtSettings>(provider =>
-            new JwtSettings(
-                provider.GetRequiredService<IDateTimeService>(),
-                jwtOptions.Issuer,
-                credentials,
-                serviceValidationParameters,
-                expiresOptions.AccessToken!.Value,
-                expiresOptions.RefreshToken!.Value
-            )
+        services.AddSingleton<IJwtSettings>(
+            provider =>
+                new JwtSettings(
+                    provider.GetRequiredService<IDateTimeService>(),
+                    jwtOptions.Issuer,
+                    credentials,
+                    serviceValidationParameters,
+                    expiresOptions.AccessToken!.Value,
+                    expiresOptions.RefreshToken!.Value
+                )
         );
         services.AddSingleton(serviceValidationParameters);
 
-        services.AddAuthentication(x =>
-            {
-                x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(x =>
-            {
-                x.TokenValidationParameters = tokenValidationParameters;
-            });
-    }
-
-
-    private sealed class JwtOptions
-    {
-        public const string Section = "Jwt";
-
-        [Required]
-        public string Secret { get; init; } = null!;
-
-        [Required]
-        public string Issuer { get; init; } = null!;
-    }
-
-
-    private sealed class ExpiresOptions
-    {
-        public const string Section = "Expires";
-
-        [Required]
-        public TimeSpan? AccessToken { get; init; }
-
-        [Required]
-        public TimeSpan? RefreshToken { get; init; }
+        services.AddAuthentication(
+                x =>
+                {
+                    x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                }
+            )
+            .AddJwtBearer(
+                x =>
+                {
+                    x.TokenValidationParameters = tokenValidationParameters;
+                }
+            );
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Api.Common;
 using Api.Endpoints.Posts.Common;
-using Api.Processors;
 using Core.Entities;
 using Core.Interfaces;
 using FastEndpoints;
@@ -42,18 +41,18 @@ public sealed class CreateEndpoint : BaseEndpoint<CreateRequest, CreateResponse>
 {
     public override IIdentityService IdentityService { get; init; } = null!;
     public override IApplicationDbContext ApplicationDbContext { get; init; } = null!;
-    public IDateTimeService DateTimeService { get; init; } = null!;
 
 
     public override void Configure()
     {
         Post(ApiRoutes.Posts.Create);
-        PostProcessors(new SaveChangesPostProcessor<CreateRequest, CreateResponse>());
 
-        Summary(x =>
-        {
-            x.Response<CreateResponse>(StatusCodes.Status201Created);
-        });
+        Summary(
+            x =>
+            {
+                x.Response<CreateResponse>(StatusCodes.Status201Created);
+            }
+        );
     }
 
 
@@ -75,6 +74,7 @@ public sealed class CreateEndpoint : BaseEndpoint<CreateRequest, CreateResponse>
             Body = newPost.Body
         };
 
+        await ApplicationDbContext.SaveChangesAsync(ct);
         await SendCreatedAtAsync<GetByIdEndpoint>(new { id = res.Id }, res, cancellation: ct);
     }
 }

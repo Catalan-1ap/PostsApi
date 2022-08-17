@@ -8,12 +8,12 @@ using Microsoft.AspNetCore.Identity;
 namespace Infrastructure.Services;
 
 
-public sealed class IdentityService : IIdentityService
+public sealed class AspIdentityService : IIdentityService
 {
     private readonly UserManager<User> _userManager;
 
 
-    public IdentityService(UserManager<User> userManager)
+    public AspIdentityService(UserManager<User> userManager)
     {
         _userManager = userManager;
     }

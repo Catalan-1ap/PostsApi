@@ -1,6 +1,5 @@
 ﻿using Api.Common;
 using Api.Endpoints.Posts.Common;
-using Api.Processors;
 using Api.Responses;
 using Core.Entities;
 using Core.Interfaces;
@@ -39,14 +38,15 @@ public sealed class DislikeEndpoint : BaseEndpoint<DislikeRequest, EmptyResponse
     public override void Configure()
     {
         Post(ApiRoutes.Posts.Dislike);
-        PostProcessors(new SaveChangesPostProcessor<DislikeRequest, EmptyResponse>());
 
-        Summary(x =>
-        {
-            x.Summary = "Dislike selected post, if dislike exists it will be cancelled, if like exists it will be replaced";
-            x.Response();
-            x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound);
-        });
+        Summary(
+            x =>
+            {
+                x.Summary = "Dislike selected post, if dislike exists it will be cancelled, if like exists it will be replaced";
+                x.Response();
+                x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound);
+            }
+        );
     }
 
 
@@ -61,7 +61,7 @@ public sealed class DislikeEndpoint : BaseEndpoint<DislikeRequest, EmptyResponse
 
     public override async Task HandleAsync(DislikeRequest req, CancellationToken ct)
     {
-        var existed = await ApplicationDbContext.SelectOpinion(req.PostId, req.UserId, ct);
+        var existed = await SelectOpinion(req.PostId, req.UserId, ct);
 
         if (existed.dislike is not null)
         {
@@ -80,6 +80,8 @@ public sealed class DislikeEndpoint : BaseEndpoint<DislikeRequest, EmptyResponse
         };
 
         ApplicationDbContext.Dislikes.Add(dislike);
+
+        await ApplicationDbContext.SaveChangesAsync(ct);
         await SendOkAsync(ct);
     }
 }

@@ -57,11 +57,13 @@ public sealed class GetAll : BaseEndpoint<GetAllRequest, Paginated<GetAllRespons
         Get(ApiRoutes.Posts.GetAll);
         AllowAnonymous();
 
-        Summary(x =>
-        {
-            x.Response<GetByIdResponse>();
-            x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound);
-        });
+        Summary(
+            x =>
+            {
+                x.Response<GetByIdResponse>();
+                x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound);
+            }
+        );
     }
 
 
@@ -72,19 +74,22 @@ public sealed class GetAll : BaseEndpoint<GetAllRequest, Paginated<GetAllRespons
             .AsExpandable()
             .OrderByDescending(x => x.CreatedAt)
             .ThenByDescending(x => x.UpdatedAt)
-            .Select(x => new GetAllResponse.ShortPost
-            {
-                Id = x.Id,
-                Title = x.Title,
-                CreatedAt = x.CreatedAt,
-                UpdatedAt = x.UpdatedAt,
-                Rating = Core.Entities.Post.RatingExpression.Invoke(x),
-                Owner = new()
+            .Select(
+                x => new GetAllResponse.ShortPost
                 {
-                    Id = x.Owner.Id,
-                    UserName = x.Owner.UserName
+                    Id = x.Id,
+                    Title = x.Title,
+                    CreatedAt = x.CreatedAt,
+                    UpdatedAt = x.UpdatedAt,
+                    Rating = Core.Entities.Post.RatingExpression.Invoke(x),
+                    Owner = new()
+                    {
+                        Id = x.Owner.Id,
+                        UserName = x.Owner.UserName,
+                        AvatarUri = x.Owner.AvatarUrl
+                    }
                 }
-            })
+            )
             .Paginate(req, ct);
 
         await SendOkAsync(paginated, ct);

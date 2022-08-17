@@ -31,6 +31,7 @@ public sealed class GetByIdResponse
     {
         public string Id { get; init; } = null!;
         public string UserName { get; init; } = null!;
+        public string AvatarUri { get; init; } = null!;
     }
 }
 
@@ -55,15 +56,17 @@ public sealed class GetByIdEndpoint : BaseEndpoint<GetByIdRequest, GetByIdRespon
         Get(ApiRoutes.Posts.GetById);
         AllowAnonymous();
 
-        Summary(x =>
-        {
-            x.Response<GetByIdResponse>();
-            x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound);
-        });
+        Summary(
+            x =>
+            {
+                x.Response<GetByIdResponse>();
+                x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound);
+            }
+        );
     }
 
 
-    public override async Task OnAfterValidateAsync(GetByIdRequest req, CancellationToken ct = new())
+    public override async Task OnAfterValidateAsync(GetByIdRequest req, CancellationToken ct = default)
     {
         var post = await PostShouldExistsAsync(req.PostId, ct);
 
@@ -78,20 +81,23 @@ public sealed class GetByIdEndpoint : BaseEndpoint<GetByIdRequest, GetByIdRespon
             .AsNoTracking()
             .AsExpandable()
             .Where(x => x.Id == req.PostId)
-            .Select(x => new GetByIdResponse
-            {
-                Id = x.Id,
-                Body = x.Body,
-                Title = x.Title,
-                CreatedAt = x.CreatedAt,
-                UpdatedAt = x.UpdatedAt,
-                Rating = Core.Entities.Post.RatingExpression.Invoke(x),
-                Owner = new()
+            .Select(
+                x => new GetByIdResponse
                 {
-                    Id = x.Owner.Id,
-                    UserName = x.Owner.UserName
+                    Id = x.Id,
+                    Body = x.Body,
+                    Title = x.Title,
+                    CreatedAt = x.CreatedAt,
+                    UpdatedAt = x.UpdatedAt,
+                    Rating = Core.Entities.Post.RatingExpression.Invoke(x),
+                    Owner = new()
+                    {
+                        Id = x.Owner.Id,
+                        UserName = x.Owner.UserName,
+                        AvatarUri = x.Owner.AvatarUrl
+                    }
                 }
-            })
+            )
             .FirstAsync(ct);
 
         await SendOkAsync(post, ct);

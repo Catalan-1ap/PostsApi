@@ -57,7 +57,7 @@ public static class Extensions
     }
 
 
-    public static IRuleBuilderOptions<T, string> MaximumLengthWithMessage<T>(
+    public static void MaximumLengthWithMessage<T>(
         this IRuleBuilder<T, string> builder,
         int maxLength
     ) => builder
@@ -65,7 +65,7 @@ public static class Extensions
         .WithMessage("Max length is: {MaxLength}, entered: {TotalLength}");
 
 
-    public static IRuleBuilderOptions<T, string> MinimumLengthWithMessage<T>(
+    public static void MinimumLengthWithMessage<T>(
         this IRuleBuilder<T, string> builder,
         int minLength
     ) => builder
@@ -73,7 +73,7 @@ public static class Extensions
         .WithMessage("Min length is: {MinLength}, entered: {TotalLength}");
 
 
-    public static IRuleBuilderOptions<T, string> NotEmptyWithMessage<T>(this IRuleBuilder<T, string> builder) =>
+    public static IRuleBuilderOptions<T, TProperty> NotEmptyWithMessage<T, TProperty>(this IRuleBuilder<T, TProperty> builder) =>
         builder
             .NotEmpty()
             .WithMessage("Must not be empty");
