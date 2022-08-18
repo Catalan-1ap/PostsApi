@@ -1,6 +1,6 @@
-﻿using Api.Common;
-using Api.Endpoints.Posts.Common;
+﻿using Api.Endpoints.Posts.Common;
 using Api.Responses;
+using Core;
 using Core.Interfaces;
 using FastEndpoints;
 using LinqKit;
@@ -20,6 +20,7 @@ public sealed class GetByIdResponse
 {
     public Guid Id { get; init; }
     public string Title { get; init; } = null!;
+    public string? CoverUrl { get; set; }
     public string Body { get; init; } = null!;
     public DateTime CreatedAt { get; init; }
     public DateTime? UpdatedAt { get; init; }
@@ -31,7 +32,7 @@ public sealed class GetByIdResponse
     {
         public string Id { get; init; } = null!;
         public string UserName { get; init; } = null!;
-        public string AvatarUri { get; init; } = null!;
+        public string? AvatarUri { get; init; }
     }
 }
 
@@ -87,6 +88,7 @@ public sealed class GetByIdEndpoint : BaseEndpoint<GetByIdRequest, GetByIdRespon
                     Id = x.Id,
                     Body = x.Body,
                     Title = x.Title,
+                    CoverUrl = x.CoverUrl,
                     CreatedAt = x.CreatedAt,
                     UpdatedAt = x.UpdatedAt,
                     Rating = Core.Entities.Post.RatingExpression.Invoke(x),

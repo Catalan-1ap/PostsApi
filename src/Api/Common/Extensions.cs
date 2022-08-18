@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Api.Responses;
 using Core.Exceptions;
+using Core.Interfaces;
 using Core.Models;
 using FluentValidation;
 using FluentValidation.Results;
+using Infrastructure.Common;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -77,4 +79,62 @@ public static class Extensions
         builder
             .NotEmpty()
             .WithMessage("Must not be empty");
+
+
+    public static IRuleBuilderOptions<T, IFormFile> MaxSize<T>(this IRuleBuilder<T, IFormFile> builder, int maxSize) =>
+        builder
+            .Must(file => file.Length < maxSize)
+            .WithMessage($"File is too large, accepted length is {maxSize}");
+
+
+    public static IRuleBuilderOptions<T, IFormFile> ExtensionOneOf<T>(
+        this IRuleBuilder<T, IFormFile> builder,
+        params string[] possibleExtensions
+    ) =>
+        builder
+            .Must(file => FileUtilities.ValidExtension(Path.GetExtension(file.FileName), possibleExtensions))
+            .WithMessage($"Extension is invalid. Possible extensions: {string.Join(", ", possibleExtensions)}");
+
+
+    public static IRuleBuilderOptions<T, IFormFile> SignatureMatchToExtension<T>(this IRuleBuilder<T, IFormFile> builder) =>
+        builder
+            .Must(file =>
+            {
+                var fileExtension = Path.GetExtension(file.FileName);
+                using var reader = file.OpenReadStream();
+
+                return FileUtilities.SignatureMatchToExtension(fileExtension, reader);
+            })
+            .WithMessage("Signature/extension doesn't correspond each other");
+
+
+    public static IRuleBuilderOptions<T, IFormFile> MaxResolution<T>(
+        this IRuleBuilder<T, IFormFile> builder,
+        ImageSize size
+    ) => builder
+        .Must(file =>
+        {
+            using var reader = file.OpenReadStream();
+
+            return FileUtilities.MaximumResolution(reader, size.Width, size.Height);
+        })
+        .WithMessage($"Maximum resolution is {size.Width}x{size.Height}");
+
+
+    public static IRuleBuilderOptions<T, string> UniqueUsername<T>(
+        this IRuleBuilder<T, string> builder,
+        IIdentityService identityService
+    ) =>
+        builder
+            .MustAsync(async (username, _) => await identityService.IsUsernameUniqueAsync(username))
+            .WithMessage("Must be unique");
+
+
+    public static IRuleBuilderOptions<T, string> UniqueEmail<T>(
+        this IRuleBuilder<T, string> builder,
+        IIdentityService identityService
+    ) =>
+        builder
+            .MustAsync(async (email, _) => await identityService.IsEmailUniqueAsync(email))
+            .WithMessage("Must be unique");
 }

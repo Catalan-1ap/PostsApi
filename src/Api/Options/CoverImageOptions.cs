@@ -5,9 +5,9 @@ using Core.Models;
 namespace Api.Options;
 
 
-public sealed class AvatarOptions
+public sealed class CoverImageOptions
 {
-    public const string Section = "Avatar";
+    public const string Section = "CoverImage";
 
     [Required]
     public int MaxSize { get; init; }

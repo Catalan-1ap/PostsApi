@@ -176,6 +176,8 @@ namespace Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Title = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    CoverUrl = table.Column<string>(type: "text", nullable: true),
+                    LeadBody = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     Body = table.Column<string>(type: "character varying(3500)", maxLength: 3500, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Api.Common;
 
 
-public class SeedData
+public sealed class SeedData
 {
     private readonly IServiceProvider _serviceProvider;
 

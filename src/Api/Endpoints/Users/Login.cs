@@ -1,6 +1,5 @@
-﻿using Api.Common;
-using Api.Endpoints.Users.Common;
-using Api.Responses;
+﻿using Api.Responses;
+using Core;
 using Core.Interfaces;
 using Core.Models;
 using FastEndpoints;
@@ -34,7 +33,7 @@ public sealed class LoginValidator : Validator<LoginRequest>
 }
 
 
-public sealed class LoginEndpoint : BaseEndpoint<LoginRequest, LoginResponse>
+public sealed class LoginEndpoint : SharedBaseEndpoint<LoginRequest, LoginResponse>
 {
     private readonly IIdentityService _identityService;
     private readonly IJwtService _jwtService;
@@ -70,7 +69,7 @@ public sealed class LoginEndpoint : BaseEndpoint<LoginRequest, LoginResponse>
         var user = await _identityService.LoginAsync(req.Email, req.Password);
         var tokens = await _jwtService.AccessAsync(user);
 
-        await ApplicationDbContext.SaveChangesAsync(ct);
+        await ApplicationDbContext.SaveChangesAsync();
         await SendOkAsync(
             new()
             {

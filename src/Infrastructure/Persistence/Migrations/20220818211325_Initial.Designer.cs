@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220817034811_Initial")]
+    [Migration("20220818211325_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -65,8 +65,15 @@ namespace Infrastructure.Persistence.Migrations
                         .HasMaxLength(3500)
                         .HasColumnType("character varying(3500)");
 
+                    b.Property<string>("CoverUrl")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LeadBody")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("OwnerId")
                         .IsRequired()

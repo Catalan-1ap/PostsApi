@@ -6,7 +6,7 @@ namespace Core.Entities;
 
 public sealed class User : IdentityUser
 {
-    public string AvatarUrl { get; set; } = null!;
+    public string? AvatarUrl { get; set; }
 
     public ICollection<Post> Posts { get; private set; } = null!;
     public ICollection<Like> Likes { get; private set; } = null!;

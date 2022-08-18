@@ -2,9 +2,10 @@ using Api.Common;
 using Api.Installers;
 using Api.Options;
 using Api.Responses;
+using Core;
+using Core.Models;
 using FastEndpoints;
 using FluentValidation;
-using Infrastructure.Common;
 using Microsoft.Extensions.FileProviders;
 
 
@@ -12,6 +13,26 @@ ValidatorOptions.Global.LanguageManager.Enabled = false;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddSingleton(x =>
+{
+    var baseUrl = builder.Configuration[WebHostDefaults.ServerUrlsKey];
+    var appRoot = x.GetRequiredService<IHostEnvironment>().ContentRootPath;
+    var contentRoot = Path.Combine(appRoot, "StaticFiles");
+
+    return new CoreEnvironment
+    {
+        BaseUri = new(baseUrl),
+        StaticRootFsPath = contentRoot,
+        AvatarsFsPath = Path.Combine(
+            contentRoot,
+            "Avatars"
+        ),
+        CoversFsPath = Path.Combine(
+            contentRoot,
+            "Covers"
+        )
+    };
+});
 builder.Services.AddControllers();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddSwagger();
@@ -20,18 +41,23 @@ builder.Services.AddFastEndpoints();
 builder.Services.AddOptions<AvatarOptions>()
     .Bind(builder.Configuration.GetSection(AvatarOptions.Section))
     .ValidateDataAnnotations();
+builder.Services.AddOptions<CoverImageOptions>()
+    .Bind(builder.Configuration.GetSection(CoverImageOptions.Section))
+    .ValidateDataAnnotations();
 
 var app = builder.Build();
+var coreEnvironment = app.Services.GetRequiredService<CoreEnvironment>();
 
 await app.UseInfrastructureAsync();
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
-Directory.CreateDirectory(builder.Environment.FsAvatarsPath());
+Directory.CreateDirectory(coreEnvironment.AvatarsFsPath);
+Directory.CreateDirectory(coreEnvironment.CoversFsPath);
 app.UseStaticFiles(
     new StaticFileOptions
     {
-        FileProvider = new PhysicalFileProvider(builder.Environment.FsAvatarsPath()),
-        RequestPath = ApiRoutes.AvatarsStatic.RequestPath
+        FileProvider = new PhysicalFileProvider(coreEnvironment.AvatarsFsPath),
+        RequestPath = ApiRoutes.Static.Avatars
     }
 );
 app.UseRouting();

@@ -1,4 +1,4 @@
-﻿namespace Api.Common;
+﻿namespace Core;
 
 
 public static class ApiRoutes
@@ -30,8 +30,9 @@ public static class ApiRoutes
     }
 
 
-    public static class AvatarsStatic
+    public static class Static
     {
-        public const string RequestPath = "/avatars";
+        public const string Avatars = "/avatars";
+        public const string Covers = "/covers";
     }
 }

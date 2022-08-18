@@ -26,7 +26,7 @@ public static class DependencyInjection
 
         services.AddSingleton<IDateTimeService, SystemDateTimeService>();
         services.AddScoped<IIdentityService, AspIdentityService>();
-        services.AddScoped<IAvatarRepository, PhysicalAvatarRepository>();
+        services.AddScoped<IStaticFilesService, DefaultStaticFilesService>();
         services.AddScoped<IJwtService, DefaultJwtService>();
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
     }

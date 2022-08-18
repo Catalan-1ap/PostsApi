@@ -12,5 +12,5 @@ public interface IApplicationDbContext
     DbSet<Dislike> Dislikes { get; }
     DbSet<RefreshToken> RefreshTokens { get; }
 
-    Task SaveChangesAsync(CancellationToken ct);
+    Task SaveChangesAsync(CancellationToken ct = default);
 }

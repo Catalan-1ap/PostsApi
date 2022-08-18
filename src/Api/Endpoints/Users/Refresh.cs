@@ -1,7 +1,6 @@
-﻿using Api.Common;
-using Api.Endpoints.Users.Common;
-using Api.Responses;
+﻿using Api.Responses;
 using Api.Validators;
+using Core;
 using Core.Interfaces;
 using Core.Models;
 using FastEndpoints;
@@ -34,7 +33,7 @@ public sealed class RefreshValidator : Validator<RefreshRequest>
 }
 
 
-public sealed class RefreshEndpoint : BaseEndpoint<RefreshRequest, RefreshResponse>
+public sealed class RefreshEndpoint : SharedBaseEndpoint<RefreshRequest, RefreshResponse>
 {
     private readonly IJwtService _jwtService;
 
@@ -68,7 +67,7 @@ public sealed class RefreshEndpoint : BaseEndpoint<RefreshRequest, RefreshRespon
     {
         var tokens = await _jwtService.RefreshAsync(req.Tokens);
 
-        await ApplicationDbContext.SaveChangesAsync(ct);
+        await ApplicationDbContext.SaveChangesAsync();
         await SendOkAsync(
             new()
             {

@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
-using Api.Common;
 using Api.Endpoints.Posts.Common;
 using Api.Responses;
+using Core;
 using Core.Entities;
 using Core.Interfaces;
 using FastEndpoints;
@@ -37,6 +37,8 @@ public sealed class UpdateValidator : Validator<UpdateRequest>
 
 public sealed class UpdateEndpoint : BaseEndpoint<UpdateRequest, EmptyResponse>
 {
+    private Post? _post;
+
     public override IIdentityService IdentityService { get; init; } = null!;
     public override IApplicationDbContext ApplicationDbContext { get; init; } = null!;
     public IDateTimeService DateTimeService { get; init; } = null!;
@@ -59,30 +61,25 @@ public sealed class UpdateEndpoint : BaseEndpoint<UpdateRequest, EmptyResponse>
 
     public override async Task OnAfterValidateAsync(UpdateRequest req, CancellationToken ct = default)
     {
-        var post = await PostShouldExistsAsync(req.PostId, ct);
+        _post = await PostShouldExistsAsync(req.PostId, ct);
 
-        if (post is null)
+        if (_post is null)
         {
             await SendNotFoundAsync(ct);
             return;
         }
 
-        if (IsOwner(post, req.UserId) == false)
+        if (IsOwner(_post, req.UserId) == false)
             await SendForbiddenAsync(ct);
     }
 
 
     public override async Task HandleAsync(UpdateRequest req, CancellationToken ct)
     {
-        var post = new Post
-        {
-            Id = req.PostId
-        };
+        ApplicationDbContext.Posts.Attach(_post!);
 
-        ApplicationDbContext.Posts.Attach(post);
-
-        post.Title = req.Title;
-        post.Body = req.Body;
+        _post!.Title = req.Title;
+        _post.Body = req.Body;
 
         await ApplicationDbContext.SaveChangesAsync(ct);
         await SendOkAsync(ct);

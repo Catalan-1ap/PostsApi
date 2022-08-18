@@ -17,6 +17,13 @@ internal sealed class PostConfiguration : IEntityTypeConfiguration<Post>
             .IsRequired()
             .HasMaxLength(PostStorageContract.TitleMaxLength);
 
+        post.Property(x => x.CoverUrl)
+            .IsRequired(false);
+
+        post.Property(x => x.LeadBody)
+            .IsRequired(false)
+            .HasMaxLength(PostStorageContract.LeadBodyMaxLength);
+
         post.Property(x => x.Body)
             .IsRequired()
             .HasMaxLength(PostStorageContract.BodyMaxLength);

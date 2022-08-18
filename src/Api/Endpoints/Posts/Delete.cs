@@ -1,6 +1,6 @@
-﻿using Api.Common;
-using Api.Endpoints.Posts.Common;
+﻿using Api.Endpoints.Posts.Common;
 using Api.Responses;
+using Core;
 using Core.Entities;
 using Core.Interfaces;
 using FastEndpoints;
@@ -22,17 +22,23 @@ public sealed class DeleteRequest
 
 public sealed class DeleteValidator : Validator<DeleteRequest>
 {
-    public DeleteValidator()
-    {
+    public DeleteValidator() =>
         RuleFor(x => x.PostId).ApplyIdRules();
-    }
 }
 
 
 public sealed class DeleteEndpoint : BaseEndpoint<DeleteRequest, EmptyResponse>
 {
+    private readonly IStaticFilesService _staticFilesService;
+    private Post? _post;
+
+
     public override IIdentityService IdentityService { get; init; } = null!;
     public override IApplicationDbContext ApplicationDbContext { get; init; } = null!;
+
+
+    public DeleteEndpoint(IStaticFilesService staticFilesService) =>
+        _staticFilesService = staticFilesService;
 
 
     public override void Configure()
@@ -52,27 +58,25 @@ public sealed class DeleteEndpoint : BaseEndpoint<DeleteRequest, EmptyResponse>
 
     public override async Task OnAfterValidateAsync(DeleteRequest req, CancellationToken ct = default)
     {
-        var post = await PostShouldExistsAsync(req.PostId, ct);
+        _post = await PostShouldExistsAsync(req.PostId, ct);
 
-        if (post is null)
+        if (_post is null)
         {
             await SendNotFoundAsync(ct);
             return;
         }
 
-        if (IsOwner(post, req.UserId) == false && await IsAdminAsync(req) == false)
+        if (IsOwner(_post, req.UserId) == false && await IsAdminAsync(req) == false)
             await SendForbiddenAsync(ct);
     }
 
 
     public override async Task HandleAsync(DeleteRequest req, CancellationToken ct)
     {
-        var post = new Post
-        {
-            Id = req.PostId
-        };
+        if (_post!.CoverUrl is not null)
+            _staticFilesService.Remove(_post.CoverUrl);
 
-        ApplicationDbContext.Posts.Remove(post);
+        ApplicationDbContext.Posts.Remove(_post);
 
         await ApplicationDbContext.SaveChangesAsync(ct);
         await SendOkAsync(ct);

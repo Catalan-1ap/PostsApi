@@ -2,6 +2,7 @@
 using Api.Endpoints.Posts.Common;
 using Api.Responses;
 using Api.Validators;
+using Core;
 using Core.Interfaces;
 using Core.Models;
 using FastEndpoints;
@@ -29,6 +30,8 @@ public static class GetAllResponse
     {
         public Guid Id { get; init; }
         public string Title { get; init; } = null!;
+        public string? LeadBody { get; init; }
+        public string? CoverUrl { get; init; }
         public DateTime CreatedAt { get; init; }
         public DateTime? UpdatedAt { get; init; }
         public int Rating { get; init; }
@@ -79,6 +82,8 @@ public sealed class GetAll : BaseEndpoint<GetAllRequest, Paginated<GetAllRespons
                 {
                     Id = x.Id,
                     Title = x.Title,
+                    CoverUrl = x.CoverUrl,
+                    LeadBody = x.LeadBody,
                     CreatedAt = x.CreatedAt,
                     UpdatedAt = x.UpdatedAt,
                     Rating = Core.Entities.Post.RatingExpression.Invoke(x),

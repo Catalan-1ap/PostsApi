@@ -6,7 +6,7 @@ namespace Infrastructure.Common;
 
 public static class FileUtilities
 {
-    private static readonly IReadOnlyDictionary<string, byte[]> Signatures = new Dictionary<string, byte[]>
+    public static readonly IReadOnlyDictionary<string, byte[]> Signatures = new Dictionary<string, byte[]>
     {
         [".jpeg"] = new byte[] { 0xFF, 0xD8, 0xFF },
         [".jpg"] = new byte[] { 0xFF, 0xD8, 0xFF },
@@ -18,7 +18,6 @@ public static class FileUtilities
     {
         var key = Signatures[extension];
         var header = fileStream.ReadBytes(key.Length);
-        fileStream.BaseStream.Seek(0, SeekOrigin.Begin);
 
         return key.SequenceEqual(header);
     }
