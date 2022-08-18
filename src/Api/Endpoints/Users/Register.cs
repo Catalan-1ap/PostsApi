@@ -56,7 +56,7 @@ public sealed class RegisterEndpoint : BaseEndpoint<RegisterRequest, RegisterRes
     private readonly IJwtService _jwtService;
 
 
-    public override IApplicationDbContext ApplicationDbContext { get; init; }
+    public override IApplicationDbContext ApplicationDbContext { get; init; } = null!;
 
 
     public RegisterEndpoint(
