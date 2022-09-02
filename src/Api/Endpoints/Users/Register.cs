@@ -78,12 +78,10 @@ public sealed class RegisterEndpoint : SharedBaseEndpoint<RegisterRequest, Empty
         AllowAnonymous();
         ScopedValidator();
 
-        Summary(
-            x =>
-            {
-                x.Response<LoginResponse>(StatusCodes.Status200OK, "JWT tokens");
-            }
-        );
+        Summary(x =>
+        {
+            x.Response<LoginResponse>(StatusCodes.Status200OK, "JWT tokens");
+        });
     }
 
 
@@ -93,13 +91,12 @@ public sealed class RegisterEndpoint : SharedBaseEndpoint<RegisterRequest, Empty
 
         if (req.Avatar is not null)
         {
-            var fileName = await _staticFilesService.SaveAvatar(req.Avatar, user.Id);
-            var avatarUri = _staticFilesService.CreateAvatarUri(fileName);
+            var fileName = await _staticFilesService.SaveAvatarAsync(req.Avatar, user.Id);
 
-            user.AvatarUrl = avatarUri;
+            user.AvatarImageName = fileName;
         }
 
-        await ApplicationDbContext.SaveChangesAsync();
-        await SendOkAsync();
+        await ApplicationDbContext.SaveChangesAsync(CancellationToken.None);
+        await SendOkAsync(CancellationToken.None);
     }
 }

@@ -2,7 +2,6 @@ using Api.Common;
 using Api.Installers;
 using Api.Options;
 using Api.Responses;
-using Core;
 using Core.Models;
 using FastEndpoints;
 using FluentValidation;
@@ -11,26 +10,40 @@ using Microsoft.Extensions.FileProviders;
 
 ValidatorOptions.Global.LanguageManager.Enabled = false;
 
-var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddSingleton(x =>
+StaticResourcesEnvironment BuildStartupEnvironment()
 {
-    var baseUrl = builder.Configuration[WebHostDefaults.ServerUrlsKey];
-    var appRoot = x.GetRequiredService<IHostEnvironment>().ContentRootPath;
-    var contentRoot = Path.Combine(appRoot, "StaticFiles");
+    var appRoot = Directory.GetCurrentDirectory();
+    var contentRoot = Path.Combine(appRoot, "static");
 
-    return new CoreEnvironment
+    return new()
     {
-        BaseUri = new(baseUrl),
         StaticRootFsPath = contentRoot,
         AvatarsFsPath = Path.Combine(
             contentRoot,
-            "Avatars"
+            "avatars"
         ),
         CoversFsPath = Path.Combine(
             contentRoot,
-            "Covers"
+            "covers"
         )
+    };
+}
+
+var staticResourcesEnvironment = BuildStartupEnvironment();
+Directory.CreateDirectory(staticResourcesEnvironment.AvatarsFsPath);
+Directory.CreateDirectory(staticResourcesEnvironment.CoversFsPath);
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddSingleton(staticResourcesEnvironment);
+builder.Services.AddScoped(provider =>
+{
+    var request = provider.GetRequiredService<IHttpContextAccessor>().HttpContext!.Request;
+    var baseUrl = $"{request?.Scheme}://{request?.Host.ToString()}/";
+
+    return new CoreEnvironment
+    {
+        BaseUrl = new(baseUrl)
     };
 });
 builder.Services.AddControllers();
@@ -46,18 +59,14 @@ builder.Services.AddOptions<CoverImageOptions>()
     .ValidateDataAnnotations();
 
 var app = builder.Build();
-var coreEnvironment = app.Services.GetRequiredService<CoreEnvironment>();
 
 await app.UseInfrastructureAsync();
 app.UseMiddleware<ExceptionMiddleware>();
-app.UseHttpsRedirection();
-Directory.CreateDirectory(coreEnvironment.AvatarsFsPath);
-Directory.CreateDirectory(coreEnvironment.CoversFsPath);
 app.UseStaticFiles(
     new StaticFileOptions
     {
-        FileProvider = new PhysicalFileProvider(coreEnvironment.AvatarsFsPath),
-        RequestPath = ApiRoutes.Static.Avatars
+        FileProvider = new PhysicalFileProvider(staticResourcesEnvironment.StaticRootFsPath),
+        RequestPath = string.Empty
     }
 );
 app.UseRouting();

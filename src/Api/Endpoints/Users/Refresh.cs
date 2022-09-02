@@ -52,14 +52,12 @@ public sealed class RefreshEndpoint : SharedBaseEndpoint<RefreshRequest, Refresh
         Post(ApiRoutes.Users.Refresh);
         AllowAnonymous();
 
-        Summary(
-            x =>
-            {
-                x.Response<RefreshResponse>(StatusCodes.Status200OK, "JWT tokens");
-                x.Response<SingleErrorResponse>(StatusCodes.Status400BadRequest, "Token has been expired");
-                x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound, "Token does not exists");
-            }
-        );
+        Summary(x =>
+        {
+            x.Response<RefreshResponse>(StatusCodes.Status200OK, "JWT tokens");
+            x.Response<SingleErrorResponse>(StatusCodes.Status400BadRequest, "Token has been expired");
+            x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound, "Token does not exists");
+        });
     }
 
 
@@ -67,13 +65,13 @@ public sealed class RefreshEndpoint : SharedBaseEndpoint<RefreshRequest, Refresh
     {
         var tokens = await _jwtService.RefreshAsync(req.Tokens);
 
-        await ApplicationDbContext.SaveChangesAsync();
+        await ApplicationDbContext.SaveChangesAsync(CancellationToken.None);
         await SendOkAsync(
             new()
             {
                 Tokens = tokens
             },
-            ct
+            CancellationToken.None
         );
     }
 }

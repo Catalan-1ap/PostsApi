@@ -1,4 +1,5 @@
-﻿using Api.Endpoints.Posts.Common;
+﻿using Api.Common;
+using Api.Endpoints.Posts.Common;
 using Api.Responses;
 using Core;
 using Core.Interfaces;
@@ -20,7 +21,7 @@ public sealed class GetByIdResponse
 {
     public Guid Id { get; init; }
     public string Title { get; init; } = null!;
-    public string? CoverUrl { get; set; }
+    public string? CoverImageName { get; set; }
     public string Body { get; init; } = null!;
     public DateTime CreatedAt { get; init; }
     public DateTime? UpdatedAt { get; init; }
@@ -32,24 +33,29 @@ public sealed class GetByIdResponse
     {
         public string Id { get; init; } = null!;
         public string UserName { get; init; } = null!;
-        public string? AvatarUri { get; init; }
+        public string? AvatarImageName { get; set; }
     }
 }
 
 
 public sealed class GetPostByIdValidator : Validator<GetByIdRequest>
 {
-    public GetPostByIdValidator()
-    {
+    public GetPostByIdValidator() =>
         RuleFor(x => x.PostId).ApplyIdRules();
-    }
 }
 
 
 public sealed class GetByIdEndpoint : BaseEndpoint<GetByIdRequest, GetByIdResponse>
 {
+    private readonly IStaticFilesService _staticFilesService;
+
+
     public override IIdentityService IdentityService { get; init; } = null!;
     public override IApplicationDbContext ApplicationDbContext { get; init; } = null!;
+
+
+    public GetByIdEndpoint(IStaticFilesService staticFilesService) =>
+        _staticFilesService = staticFilesService;
 
 
     public override void Configure()
@@ -57,13 +63,11 @@ public sealed class GetByIdEndpoint : BaseEndpoint<GetByIdRequest, GetByIdRespon
         Get(ApiRoutes.Posts.GetById);
         AllowAnonymous();
 
-        Summary(
-            x =>
-            {
-                x.Response<GetByIdResponse>();
-                x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound);
-            }
-        );
+        Summary(x =>
+        {
+            x.Response<GetByIdResponse>();
+            x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound);
+        });
     }
 
 
@@ -82,25 +86,26 @@ public sealed class GetByIdEndpoint : BaseEndpoint<GetByIdRequest, GetByIdRespon
             .AsNoTracking()
             .AsExpandable()
             .Where(x => x.Id == req.PostId)
-            .Select(
-                x => new GetByIdResponse
+            .Select(x => new GetByIdResponse
+            {
+                Id = x.Id,
+                Body = x.Body,
+                Title = x.Title,
+                CoverImageName = x.CoverImageName,
+                CreatedAt = x.CreatedAt,
+                UpdatedAt = x.UpdatedAt,
+                Rating = Core.Entities.Post.RatingExpression.Invoke(x),
+                Owner = new()
                 {
-                    Id = x.Id,
-                    Body = x.Body,
-                    Title = x.Title,
-                    CoverUrl = x.CoverUrl,
-                    CreatedAt = x.CreatedAt,
-                    UpdatedAt = x.UpdatedAt,
-                    Rating = Core.Entities.Post.RatingExpression.Invoke(x),
-                    Owner = new()
-                    {
-                        Id = x.Owner.Id,
-                        UserName = x.Owner.UserName,
-                        AvatarUri = x.Owner.AvatarUrl
-                    }
+                    Id = x.Owner.Id,
+                    UserName = x.Owner.UserName,
+                    AvatarImageName = x.Owner.AvatarImageName
                 }
-            )
+            })
             .FirstAsync(ct);
+
+        post.CoverImageName = post.CoverImageName.ReplaceIfNotNull(_staticFilesService.CreateCoverUri);
+        post.Owner.AvatarImageName = post.Owner.AvatarImageName.ReplaceIfNotNull(_staticFilesService.CreateAvatarUri);
 
         await SendOkAsync(post, ct);
     }

@@ -37,7 +37,7 @@ public sealed class DefaultJwtService : IJwtService
 
     public async Task<JwtTokens> AccessAsync(User user)
     {
-        var claims = await CreateClaimsForUser(user);
+        var claims = await CreateClaimsForUserAsync(user);
 
         return CreateTokens(user.Id, claims);
     }
@@ -113,7 +113,6 @@ public sealed class DefaultJwtService : IJwtService
             {
                 Token = refreshToken,
                 UserId = userId,
-                CreatedAt = _dateTimeService.UtcNowDate,
                 ExpiredAt = DateOnly.FromDateTime(_jwtSettings.ExpiresForRefreshToken)
             }
         );
@@ -122,7 +121,7 @@ public sealed class DefaultJwtService : IJwtService
     }
 
 
-    private async Task<IEnumerable<Claim>> CreateClaimsForUser(User user)
+    private async Task<IEnumerable<Claim>> CreateClaimsForUserAsync(User user)
     {
         var claims = new List<Claim>
         {

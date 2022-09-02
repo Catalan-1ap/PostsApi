@@ -13,24 +13,22 @@ public abstract class BaseEndpoint<TRequest, TResponse> : SharedBaseEndpoint<TRe
     public abstract IIdentityService IdentityService { get; init; }
 
 
-    public async Task<(Like? like, Dislike? dislike)> SelectOpinion(
+    public async Task<(PostLike? like, PostDislike? dislike)> SelectOpinionOfPostAsync(
         Guid postId,
         string userId,
         CancellationToken ct
     )
     {
-        var rate = await ApplicationDbContext.Posts
+        var opinions = await ApplicationDbContext.Posts
             .Where(x => x.Id == postId)
-            .Select(
-                x => new
-                {
-                    Like = x.Likes.FirstOrDefault(l => l.UserId == userId),
-                    Dislike = x.Dislikes.FirstOrDefault(d => d.UserId == userId)
-                }
-            )
+            .Select(x => new
+            {
+                Like = x.Likes.FirstOrDefault(l => l.UserId == userId),
+                Dislike = x.Dislikes.FirstOrDefault(d => d.UserId == userId)
+            })
             .FirstOrDefaultAsync(ct);
 
-        return (rate?.Like, rate?.Dislike);
+        return (opinions?.Like, opinions?.Dislike);
     }
 
 

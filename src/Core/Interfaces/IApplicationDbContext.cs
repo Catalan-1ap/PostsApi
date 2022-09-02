@@ -8,8 +8,8 @@ namespace Core.Interfaces;
 public interface IApplicationDbContext
 {
     DbSet<Post> Posts { get; }
-    DbSet<Like> Likes { get; }
-    DbSet<Dislike> Dislikes { get; }
+    DbSet<PostLike> PostsLikes { get; }
+    DbSet<PostDislike> PostsDislikes { get; }
     DbSet<RefreshToken> RefreshTokens { get; }
 
     Task SaveChangesAsync(CancellationToken ct = default);

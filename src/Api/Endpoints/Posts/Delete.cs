@@ -45,14 +45,12 @@ public sealed class DeleteEndpoint : BaseEndpoint<DeleteRequest, EmptyResponse>
     {
         Delete(ApiRoutes.Posts.Delete);
 
-        Summary(
-            x =>
-            {
-                x.Response();
-                x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound);
-                x.Response(StatusCodes.Status403Forbidden);
-            }
-        );
+        Summary(x =>
+        {
+            x.Response();
+            x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound);
+            x.Response(StatusCodes.Status403Forbidden);
+        });
     }
 
 
@@ -73,12 +71,12 @@ public sealed class DeleteEndpoint : BaseEndpoint<DeleteRequest, EmptyResponse>
 
     public override async Task HandleAsync(DeleteRequest req, CancellationToken ct)
     {
-        if (_post!.CoverUrl is not null)
-            _staticFilesService.Remove(_post.CoverUrl);
+        if (_post!.CoverImageName is not null)
+            _staticFilesService.Remove(_post.CoverImageName);
 
         ApplicationDbContext.Posts.Remove(_post);
 
         await ApplicationDbContext.SaveChangesAsync(ct);
-        await SendOkAsync(ct);
+        await SendOkAsync(CancellationToken.None);
     }
 }

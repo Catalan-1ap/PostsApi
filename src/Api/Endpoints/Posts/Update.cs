@@ -48,14 +48,12 @@ public sealed class UpdateEndpoint : BaseEndpoint<UpdateRequest, EmptyResponse>
     {
         Put(ApiRoutes.Posts.Update);
 
-        Summary(
-            x =>
-            {
-                x.Response();
-                x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound);
-                x.Response(StatusCodes.Status403Forbidden);
-            }
-        );
+        Summary(x =>
+        {
+            x.Response();
+            x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound);
+            x.Response(StatusCodes.Status403Forbidden);
+        });
     }
 
 
@@ -82,6 +80,6 @@ public sealed class UpdateEndpoint : BaseEndpoint<UpdateRequest, EmptyResponse>
         _post.Body = req.Body;
 
         await ApplicationDbContext.SaveChangesAsync(ct);
-        await SendOkAsync(ct);
+        await SendOkAsync(CancellationToken.None);
     }
 }

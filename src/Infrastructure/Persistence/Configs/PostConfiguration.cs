@@ -17,7 +17,7 @@ internal sealed class PostConfiguration : IEntityTypeConfiguration<Post>
             .IsRequired()
             .HasMaxLength(PostStorageContract.TitleMaxLength);
 
-        post.Property(x => x.CoverUrl)
+        post.Property(x => x.CoverImageName)
             .IsRequired(false);
 
         post.Property(x => x.LeadBody)

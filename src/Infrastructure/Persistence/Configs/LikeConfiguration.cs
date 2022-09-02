@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace Infrastructure.Persistence.Configs;
 
 
-internal sealed class LikeConfiguration : IEntityTypeConfiguration<Like>
+internal sealed class LikeConfiguration : IEntityTypeConfiguration<PostLike>
 {
-    public void Configure(EntityTypeBuilder<Like> like)
+    public void Configure(EntityTypeBuilder<PostLike> like)
     {
         like.HasKey(x => new { x.PostId, x.UserId });
 

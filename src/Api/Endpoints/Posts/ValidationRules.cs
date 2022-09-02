@@ -19,7 +19,7 @@ internal static class ValidationRules
             .MaximumLengthWithMessage(PostStorageContract.TitleMaxLength);
 
 
-    public static void ApplyLeadBodyRules<T>(this IRuleBuilder<T, string> builder) =>
+    public static void ApplyLeadBodyRules<T>(this IRuleBuilder<T, string?> builder) =>
         builder
             .MaximumLengthWithMessage(PostStorageContract.LeadBodyMaxLength);
 

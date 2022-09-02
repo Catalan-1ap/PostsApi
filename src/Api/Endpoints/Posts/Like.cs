@@ -39,14 +39,12 @@ public sealed class LikeEndpoint : BaseEndpoint<LikeRequest, EmptyResponse>
     {
         Post(ApiRoutes.Posts.Like);
 
-        Summary(
-            x =>
-            {
-                x.Summary = "Like selected post, if like exists it will be cancelled, if dislike exists it will be replaced";
-                x.Response();
-                x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound);
-            }
-        );
+        Summary(x =>
+        {
+            x.Summary = "Like selected post, if like exists it will be cancelled, if dislike exists it will be replaced";
+            x.Response();
+            x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound);
+        });
     }
 
 
@@ -61,27 +59,28 @@ public sealed class LikeEndpoint : BaseEndpoint<LikeRequest, EmptyResponse>
 
     public override async Task HandleAsync(LikeRequest req, CancellationToken ct)
     {
-        var existed = await SelectOpinion(req.PostId, req.UserId, ct);
+        var existed = await SelectOpinionOfPostAsync(req.PostId, req.UserId, ct);
 
         if (existed.like is not null)
         {
-            ApplicationDbContext.Likes.Remove(existed.like);
-            await SendOkAsync(ct);
+            ApplicationDbContext.PostsLikes.Remove(existed.like);
+            await ApplicationDbContext.SaveChangesAsync(ct);
+            await SendOkAsync(CancellationToken.None);
             return;
         }
 
         if (existed.dislike is not null)
-            ApplicationDbContext.Dislikes.Remove(existed.dislike);
+            ApplicationDbContext.PostsDislikes.Remove(existed.dislike);
 
-        var like = new Like
+        var like = new PostLike
         {
             PostId = req.PostId,
             UserId = req.UserId
         };
 
-        ApplicationDbContext.Likes.Add(like);
+        ApplicationDbContext.PostsLikes.Add(like);
 
         await ApplicationDbContext.SaveChangesAsync(ct);
-        await SendOkAsync(ct);
+        await SendOkAsync(CancellationToken.None);
     }
 }

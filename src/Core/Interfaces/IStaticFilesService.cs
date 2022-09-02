@@ -6,11 +6,11 @@ namespace Core.Interfaces;
 
 public interface IStaticFilesService
 {
-    Task<string> SaveAvatar(IFormFile avatarImage, string userId);
+    Task<string> SaveAvatarAsync(IFormFile avatarImage, string userId);
 
     string CreateAvatarUri(string fileName);
 
-    Task<string> SaveCover(IFormFile coverImage, string postId);
+    Task<string> SaveCoverAsync(IFormFile coverImage, string postId);
 
     string CreateCoverUri(string fileName);
 

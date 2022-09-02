@@ -77,12 +77,10 @@ public sealed class CreateEndpoint : BaseEndpoint<CreateRequest, CreateResponse>
         AllowFileUploads();
         ScopedValidator();
 
-        Summary(
-            x =>
-            {
-                x.Response<CreateResponse>(StatusCodes.Status201Created);
-            }
-        );
+        Summary(x =>
+        {
+            x.Response<CreateResponse>(StatusCodes.Status201Created);
+        });
     }
 
 
@@ -100,10 +98,9 @@ public sealed class CreateEndpoint : BaseEndpoint<CreateRequest, CreateResponse>
 
         if (req.CoverImage is not null)
         {
-            var fileName = await _staticFilesService.SaveCover(req.CoverImage, newPost.Id.ToString());
-            var coverUri = _staticFilesService.CreateCoverUri(fileName);
+            var fileName = await _staticFilesService.SaveCoverAsync(req.CoverImage, newPost.Id.ToString());
 
-            newPost.CoverUrl = coverUri;
+            newPost.CoverImageName = fileName;
         }
 
         var res = new CreateResponse
@@ -112,10 +109,10 @@ public sealed class CreateEndpoint : BaseEndpoint<CreateRequest, CreateResponse>
             Title = newPost.Title,
             Body = newPost.Body,
             LeadBody = newPost.LeadBody,
-            CoverUrl = newPost.CoverUrl
+            CoverUrl = newPost.CoverImageName
         };
 
         await ApplicationDbContext.SaveChangesAsync(ct);
-        await SendCreatedAtAsync<GetByIdEndpoint>(new { id = res.Id }, res, cancellation: ct);
+        await SendCreatedAtAsync<GetByIdEndpoint>(new { id = res.Id }, res, cancellation: CancellationToken.None);
     }
 }

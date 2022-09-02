@@ -53,14 +53,12 @@ public sealed class LoginEndpoint : SharedBaseEndpoint<LoginRequest, LoginRespon
         Post(ApiRoutes.Users.Login);
         AllowAnonymous();
 
-        Summary(
-            x =>
-            {
-                x.Response<LoginResponse>(StatusCodes.Status200OK, "JWT tokens");
-                x.Response<SingleErrorResponse>(StatusCodes.Status400BadRequest, "Email/Password combination is wrong");
-                x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound, "User does not exists");
-            }
-        );
+        Summary(x =>
+        {
+            x.Response<LoginResponse>(StatusCodes.Status200OK, "JWT tokens");
+            x.Response<SingleErrorResponse>(StatusCodes.Status400BadRequest, "Email/Password combination is wrong");
+            x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound, "User does not exists");
+        });
     }
 
 
@@ -69,13 +67,13 @@ public sealed class LoginEndpoint : SharedBaseEndpoint<LoginRequest, LoginRespon
         var user = await _identityService.LoginAsync(req.Email, req.Password);
         var tokens = await _jwtService.AccessAsync(user);
 
-        await ApplicationDbContext.SaveChangesAsync();
+        await ApplicationDbContext.SaveChangesAsync(CancellationToken.None);
         await SendOkAsync(
             new()
             {
                 Tokens = tokens
             },
-            ct
+            CancellationToken.None
         );
     }
 }

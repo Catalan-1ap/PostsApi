@@ -1,7 +1,7 @@
 ﻿namespace Core.Entities;
 
 
-public sealed class Dislike
+public sealed class PostLike
 {
     public Guid PostId { get; set; }
     public Post Post { get; set; } = null!;

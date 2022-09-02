@@ -20,8 +20,6 @@ public static class InfrastructureInstaller
     }
 
 
-    public static async Task UseInfrastructureAsync(this WebApplication app)
-    {
-        await app.Services.InitializeInfrastructure();
-    }
+    public static async Task UseInfrastructureAsync(this WebApplication app) =>
+        await app.Services.InitializeInfrastructureAsync();
 }

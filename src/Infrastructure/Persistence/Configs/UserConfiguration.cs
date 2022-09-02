@@ -9,6 +9,6 @@ namespace Infrastructure.Persistence.Configs;
 internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> user) =>
-        user.Property(x => x.AvatarUrl)
+        user.Property(x => x.AvatarImageName)
             .IsRequired(false);
 }

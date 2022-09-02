@@ -39,14 +39,12 @@ public sealed class DislikeEndpoint : BaseEndpoint<DislikeRequest, EmptyResponse
     {
         Post(ApiRoutes.Posts.Dislike);
 
-        Summary(
-            x =>
-            {
-                x.Summary = "Dislike selected post, if dislike exists it will be cancelled, if like exists it will be replaced";
-                x.Response();
-                x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound);
-            }
-        );
+        Summary(x =>
+        {
+            x.Summary = "Dislike selected post, if dislike exists it will be cancelled, if like exists it will be replaced";
+            x.Response();
+            x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound);
+        });
     }
 
 
@@ -61,27 +59,28 @@ public sealed class DislikeEndpoint : BaseEndpoint<DislikeRequest, EmptyResponse
 
     public override async Task HandleAsync(DislikeRequest req, CancellationToken ct)
     {
-        var existed = await SelectOpinion(req.PostId, req.UserId, ct);
+        var existed = await SelectOpinionOfPostAsync(req.PostId, req.UserId, ct);
 
         if (existed.dislike is not null)
         {
-            ApplicationDbContext.Dislikes.Remove(existed.dislike);
-            await SendOkAsync(ct);
+            ApplicationDbContext.PostsDislikes.Remove(existed.dislike);
+            await ApplicationDbContext.SaveChangesAsync(ct);
+            await SendOkAsync(CancellationToken.None);
             return;
         }
 
         if (existed.like is not null)
-            ApplicationDbContext.Likes.Remove(existed.like);
+            ApplicationDbContext.PostsLikes.Remove(existed.like);
 
-        var dislike = new Dislike
+        var dislike = new PostDislike
         {
             PostId = req.PostId,
             UserId = req.UserId
         };
 
-        ApplicationDbContext.Dislikes.Add(dislike);
+        ApplicationDbContext.PostsDislikes.Add(dislike);
 
         await ApplicationDbContext.SaveChangesAsync(ct);
-        await SendOkAsync(ct);
+        await SendOkAsync(CancellationToken.None);
     }
 }

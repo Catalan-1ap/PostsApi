@@ -17,10 +17,15 @@ public sealed class GetAllRequest : IPaginatable
 {
     [QueryParam]
     [BindFrom("p")]
-    public int Page { get; init; } = 1;
+    public int? Page { get; init; } = 1;
+
     [QueryParam]
     [BindFrom("s")]
-    public int PageSize { get; init; } = 15;
+    public int? PageSize { get; init; } = 15;
+
+
+    int IPaginatable.Page => Page ?? 0;
+    int IPaginatable.PageSize => PageSize ?? 0;
 }
 
 
@@ -31,7 +36,7 @@ public static class GetAllResponse
         public Guid Id { get; init; }
         public string Title { get; init; } = null!;
         public string? LeadBody { get; init; }
-        public string? CoverUrl { get; init; }
+        public string? CoverImageName { get; set; }
         public DateTime CreatedAt { get; init; }
         public DateTime? UpdatedAt { get; init; }
         public int Rating { get; init; }
@@ -42,17 +47,21 @@ public static class GetAllResponse
 
 public sealed class GetAllValidator : Validator<GetAllRequest>
 {
-    public GetAllValidator()
-    {
+    public GetAllValidator() =>
         Include(new PaginatableValidator());
-    }
 }
 
 
 public sealed class GetAll : BaseEndpoint<GetAllRequest, Paginated<GetAllResponse.ShortPost>>
 {
+    private readonly IStaticFilesService _staticFilesService;
+
     public override IIdentityService IdentityService { get; init; } = null!;
     public override IApplicationDbContext ApplicationDbContext { get; init; } = null!;
+
+
+    public GetAll(IStaticFilesService staticFilesService) =>
+        _staticFilesService = staticFilesService;
 
 
     public override void Configure()
@@ -60,13 +69,13 @@ public sealed class GetAll : BaseEndpoint<GetAllRequest, Paginated<GetAllRespons
         Get(ApiRoutes.Posts.GetAll);
         AllowAnonymous();
 
-        Summary(
-            x =>
-            {
-                x.Response<GetByIdResponse>();
-                x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound);
-            }
-        );
+        Summary(x =>
+        {
+            x.Response<GetByIdResponse>();
+            x.Response<SingleErrorResponse>(StatusCodes.Status404NotFound);
+            x.Params[nameof(GetAllRequest.PageSize)] = "Page size";
+            x.Params[nameof(GetAllRequest.Page)] = "Page number";
+        });
     }
 
 
@@ -77,25 +86,30 @@ public sealed class GetAll : BaseEndpoint<GetAllRequest, Paginated<GetAllRespons
             .AsExpandable()
             .OrderByDescending(x => x.CreatedAt)
             .ThenByDescending(x => x.UpdatedAt)
-            .Select(
-                x => new GetAllResponse.ShortPost
+            .Select(x => new GetAllResponse.ShortPost
+            {
+                Id = x.Id,
+                Title = x.Title,
+                CoverImageName = x.CoverImageName,
+                LeadBody = x.LeadBody,
+                CreatedAt = x.CreatedAt,
+                UpdatedAt = x.UpdatedAt,
+                Rating = Core.Entities.Post.RatingExpression.Invoke(x),
+                Owner = new()
                 {
-                    Id = x.Id,
-                    Title = x.Title,
-                    CoverUrl = x.CoverUrl,
-                    LeadBody = x.LeadBody,
-                    CreatedAt = x.CreatedAt,
-                    UpdatedAt = x.UpdatedAt,
-                    Rating = Core.Entities.Post.RatingExpression.Invoke(x),
-                    Owner = new()
-                    {
-                        Id = x.Owner.Id,
-                        UserName = x.Owner.UserName,
-                        AvatarUri = x.Owner.AvatarUrl
-                    }
+                    Id = x.Owner.Id,
+                    UserName = x.Owner.UserName,
+                    AvatarImageName = x.Owner.AvatarImageName
                 }
-            )
-            .Paginate(req, ct);
+            })
+            .PaginateAsync(req, ct);
+
+        foreach (var shortPost in paginated.Data)
+        {
+            shortPost.CoverImageName = shortPost.CoverImageName.ReplaceIfNotNull(_staticFilesService.CreateCoverUri);
+            shortPost.Owner.AvatarImageName =
+                shortPost.Owner.AvatarImageName.ReplaceIfNotNull(_staticFilesService.CreateAvatarUri);
+        }
 
         await SendOkAsync(paginated, ct);
     }

@@ -48,19 +48,15 @@ public static class JwtInstaller
         );
         services.AddSingleton(serviceValidationParameters);
 
-        services.AddAuthentication(
-                x =>
-                {
-                    x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                }
-            )
-            .AddJwtBearer(
-                x =>
-                {
-                    x.TokenValidationParameters = tokenValidationParameters;
-                }
-            );
+        services.AddAuthentication(x =>
+            {
+                x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(x =>
+            {
+                x.TokenValidationParameters = tokenValidationParameters;
+            });
     }
 }

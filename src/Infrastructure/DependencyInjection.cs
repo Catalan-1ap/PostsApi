@@ -32,7 +32,7 @@ public static class DependencyInjection
     }
 
 
-    public static async Task InitializeInfrastructure(this IServiceProvider serviceProvider)
+    public static async Task InitializeInfrastructureAsync(this IServiceProvider serviceProvider)
     {
         using var scope = serviceProvider.CreateScope();
 

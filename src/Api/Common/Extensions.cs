@@ -14,7 +14,7 @@ namespace Api.Common;
 
 public static class Extensions
 {
-    public static async Task<Paginated<T>> Paginate<T>(
+    public static async Task<Paginated<T>> PaginateAsync<T>(
         this IQueryable<T> queryable,
         IPaginatable paginatable,
         CancellationToken ct = default
@@ -43,6 +43,12 @@ public static class Extensions
     }
 
 
+    public static string? ReplaceIfNotNull(this string? value, Func<string, string> newValueProvider) =>
+        value is not null
+            ? newValueProvider(value)
+            : value;
+
+
     public static ValidationErrorResponse ToValidationErrorResponse(this IEnumerable<ValidationFailure> failures)
     {
         var errors = failures
@@ -60,7 +66,7 @@ public static class Extensions
 
 
     public static void MaximumLengthWithMessage<T>(
-        this IRuleBuilder<T, string> builder,
+        this IRuleBuilder<T, string?> builder,
         int maxLength
     ) => builder
         .MaximumLength(maxLength)

@@ -13,8 +13,8 @@ internal sealed class ApplicationDbContext : IdentityDbContext<User, Role, strin
     private readonly AuditableSaveChangesInterceptor _auditableSaveChangesInterceptor = null!;
 
     public DbSet<Post> Posts { get; set; } = null!;
-    public DbSet<Like> Likes { get; set; } = null!;
-    public DbSet<Dislike> Dislikes { get; set; } = null!;
+    public DbSet<PostLike> PostsLikes { get; set; } = null!;
+    public DbSet<PostDislike> PostsDislikes { get; set; } = null!;
     public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
 
 

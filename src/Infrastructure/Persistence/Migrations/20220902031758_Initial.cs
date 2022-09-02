@@ -29,7 +29,7 @@ namespace Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
-                    AvatarUrl = table.Column<string>(type: "text", nullable: true),
+                    AvatarImageName = table.Column<string>(type: "text", nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -57,7 +57,8 @@ namespace Infrastructure.Persistence.Migrations
                     Token = table.Column<string>(type: "text", nullable: false),
                     UserId = table.Column<string>(type: "text", nullable: false),
                     ExpiredAt = table.Column<DateOnly>(type: "date", nullable: false),
-                    CreatedAt = table.Column<DateOnly>(type: "date", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -176,7 +177,7 @@ namespace Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Title = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    CoverUrl = table.Column<string>(type: "text", nullable: true),
+                    CoverImageName = table.Column<string>(type: "text", nullable: true),
                     LeadBody = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     Body = table.Column<string>(type: "character varying(3500)", maxLength: 3500, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -195,7 +196,7 @@ namespace Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Dislikes",
+                name: "PostsDislikes",
                 columns: table => new
                 {
                     PostId = table.Column<Guid>(type: "uuid", nullable: false),
@@ -203,15 +204,15 @@ namespace Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Dislikes", x => new { x.PostId, x.UserId });
+                    table.PrimaryKey("PK_PostsDislikes", x => new { x.PostId, x.UserId });
                     table.ForeignKey(
-                        name: "FK_Dislikes_AspNetUsers_UserId",
+                        name: "FK_PostsDislikes_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Dislikes_Posts_PostId",
+                        name: "FK_PostsDislikes_Posts_PostId",
                         column: x => x.PostId,
                         principalTable: "Posts",
                         principalColumn: "Id",
@@ -219,7 +220,7 @@ namespace Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Likes",
+                name: "PostsLikes",
                 columns: table => new
                 {
                     PostId = table.Column<Guid>(type: "uuid", nullable: false),
@@ -227,15 +228,15 @@ namespace Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Likes", x => new { x.PostId, x.UserId });
+                    table.PrimaryKey("PK_PostsLikes", x => new { x.PostId, x.UserId });
                     table.ForeignKey(
-                        name: "FK_Likes_AspNetUsers_UserId",
+                        name: "FK_PostsLikes_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Likes_Posts_PostId",
+                        name: "FK_PostsLikes_Posts_PostId",
                         column: x => x.PostId,
                         principalTable: "Posts",
                         principalColumn: "Id",
@@ -280,19 +281,19 @@ namespace Infrastructure.Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Dislikes_UserId",
-                table: "Dislikes",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Likes_UserId",
-                table: "Likes",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Posts_OwnerId",
                 table: "Posts",
                 column: "OwnerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PostsDislikes_UserId",
+                table: "PostsDislikes",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PostsLikes_UserId",
+                table: "PostsLikes",
+                column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -313,10 +314,10 @@ namespace Infrastructure.Persistence.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Dislikes");
+                name: "PostsDislikes");
 
             migrationBuilder.DropTable(
-                name: "Likes");
+                name: "PostsLikes");
 
             migrationBuilder.DropTable(
                 name: "RefreshTokens");

@@ -3,6 +3,6 @@
 
 public interface IPaginatable
 {
-    public int Page { get; init; }
-    public int PageSize { get; init; }
+    public int Page { get; }
+    public int PageSize { get; }
 }

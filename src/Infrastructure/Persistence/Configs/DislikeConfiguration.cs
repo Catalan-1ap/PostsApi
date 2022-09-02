@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace Infrastructure.Persistence.Configs;
 
 
-internal sealed class DislikeConfiguration : IEntityTypeConfiguration<Dislike>
+internal sealed class DislikeConfiguration : IEntityTypeConfiguration<PostDislike>
 {
-    public void Configure(EntityTypeBuilder<Dislike> like)
+    public void Configure(EntityTypeBuilder<PostDislike> like)
     {
         like.HasKey(x => new { x.PostId, x.UserId });
 

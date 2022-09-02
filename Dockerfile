@@ -5,12 +5,8 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["src/Api/Api.csproj", "Api/"]
-COPY ["src/Infrastructure/Infrastructure.csproj", "Infrastructure/"]
-COPY ["src/Domain/Domain.csproj", "Domain/"]
-COPY ["src/Application/Application.csproj", "Application/"]
-RUN dotnet restore "Api/Api.csproj"
 COPY ./src .
+RUN dotnet restore "Api/Api.csproj"
 WORKDIR "Api"
 
 FROM build AS publish

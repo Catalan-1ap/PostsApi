@@ -22,36 +22,6 @@ namespace Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Core.Entities.Dislike", b =>
-                {
-                    b.Property<Guid>("PostId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
-                    b.HasKey("PostId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Dislikes");
-                });
-
-            modelBuilder.Entity("Core.Entities.Like", b =>
-                {
-                    b.Property<Guid>("PostId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
-                    b.HasKey("PostId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Likes");
-                });
-
             modelBuilder.Entity("Core.Entities.Post", b =>
                 {
                     b.Property<Guid>("Id")
@@ -63,7 +33,7 @@ namespace Infrastructure.Persistence.Migrations
                         .HasMaxLength(3500)
                         .HasColumnType("character varying(3500)");
 
-                    b.Property<string>("CoverUrl")
+                    b.Property<string>("CoverImageName")
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
@@ -92,16 +62,49 @@ namespace Infrastructure.Persistence.Migrations
                     b.ToTable("Posts");
                 });
 
+            modelBuilder.Entity("Core.Entities.PostDislike", b =>
+                {
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.HasKey("PostId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PostsDislikes");
+                });
+
+            modelBuilder.Entity("Core.Entities.PostLike", b =>
+                {
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.HasKey("PostId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PostsLikes");
+                });
+
             modelBuilder.Entity("Core.Entities.RefreshToken", b =>
                 {
                     b.Property<string>("Token")
                         .HasColumnType("text");
 
-                    b.Property<DateOnly>("CreatedAt")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateOnly>("ExpiredAt")
                         .HasColumnType("date");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -146,7 +149,7 @@ namespace Infrastructure.Persistence.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
 
-                    b.Property<string>("AvatarUrl")
+                    b.Property<string>("AvatarImageName")
                         .HasColumnType("text");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -311,40 +314,6 @@ namespace Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Core.Entities.Dislike", b =>
-                {
-                    b.HasOne("Core.Entities.Post", "Post")
-                        .WithMany("Dislikes")
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Core.Entities.User", "User")
-                        .WithMany("Dislikes")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Post");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Core.Entities.Like", b =>
-                {
-                    b.HasOne("Core.Entities.Post", "Post")
-                        .WithMany("Likes")
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Core.Entities.User", "User")
-                        .WithMany("Likes")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Post");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Core.Entities.Post", b =>
                 {
                     b.HasOne("Core.Entities.User", "Owner")
@@ -354,6 +323,40 @@ namespace Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("Core.Entities.PostDislike", b =>
+                {
+                    b.HasOne("Core.Entities.Post", "Post")
+                        .WithMany("Dislikes")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Core.Entities.User", "User")
+                        .WithMany("Dislikes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Core.Entities.PostLike", b =>
+                {
+                    b.HasOne("Core.Entities.Post", "Post")
+                        .WithMany("Likes")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Core.Entities.User", "User")
+                        .WithMany("Likes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

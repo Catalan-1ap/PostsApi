@@ -9,8 +9,12 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8000:80"
+      - "5001:5001"
+    volumes:
+      - static-files:/app/static/
     environment:
+      ASPNETCORE_URLS: http://+:5001
+      ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_POSTGRES__HOST: database
       ASPNETCORE_POSTGRES__USER: ${POSTGRES_USER}
       ASPNETCORE_POSTGRES__PASSWORD: ${POSTGRES_PASSWORD}
@@ -33,4 +37,6 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 volumes:
   db-data:
+    driver: local
+  static-files:
     driver: local
