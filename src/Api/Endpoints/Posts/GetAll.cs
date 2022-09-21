@@ -17,15 +17,11 @@ public sealed class GetAllRequest : IPaginatable
 {
     [QueryParam]
     [BindFrom("p")]
-    public int? Page { get; init; } = 1;
+    public int Page { get; init; } = 1;
 
     [QueryParam]
     [BindFrom("s")]
-    public int? PageSize { get; init; } = 15;
-
-
-    int IPaginatable.Page => Page ?? 0;
-    int IPaginatable.PageSize => PageSize ?? 0;
+    public int PageSize { get; init; } = 15;
 }
 
 
