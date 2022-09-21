@@ -1,10 +1,10 @@
 ﻿using Api.Endpoints.Posts.Common;
 using Api.Responses;
 using Core;
+using Core.Common;
 using Core.Entities;
 using Core.Interfaces;
 using FastEndpoints;
-using Infrastructure.Common;
 using Newtonsoft.Json;
 
 

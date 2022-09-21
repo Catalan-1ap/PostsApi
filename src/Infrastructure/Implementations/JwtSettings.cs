@@ -1,9 +1,8 @@
 ﻿using Core.Interfaces;
-using Core.Settings;
 using Microsoft.IdentityModel.Tokens;
 
 
-namespace Infrastructure.Settings;
+namespace Infrastructure.Implementations;
 
 
 public sealed class JwtSettings : IJwtSettings

@@ -1,16 +1,15 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Core.Common;
 using Core.Entities;
 using Core.Exceptions;
 using Core.Interfaces;
 using Core.Models;
-using Core.Settings;
-using Infrastructure.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 
-namespace Infrastructure.Services;
+namespace Infrastructure.Implementations;
 
 
 public sealed class DefaultJwtService : IJwtService

@@ -1,13 +1,13 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 
 
-namespace Core.Settings;
+namespace Core.Interfaces;
 
 
 public interface IJwtSettings
 {
     string Issuer { get; }
-    
+
     SigningCredentials Credentials { get; }
 
     public TokenValidationParameters TokenValidationParameters { get; }

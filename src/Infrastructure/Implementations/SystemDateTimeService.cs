@@ -1,7 +1,7 @@
 ﻿using Core.Interfaces;
 
 
-namespace Infrastructure.Services;
+namespace Infrastructure.Implementations;
 
 
 public sealed class SystemDateTimeService : IDateTimeService

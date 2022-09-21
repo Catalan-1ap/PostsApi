@@ -5,7 +5,7 @@ using Infrastructure.Common;
 using Microsoft.AspNetCore.Identity;
 
 
-namespace Infrastructure.Services;
+namespace Infrastructure.Implementations;
 
 
 public sealed class AspIdentityService : IIdentityService

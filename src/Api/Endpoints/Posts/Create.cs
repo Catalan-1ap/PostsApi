@@ -2,11 +2,11 @@
 using Api.Endpoints.Posts.Common;
 using Api.Options;
 using Core;
+using Core.Common;
 using Core.Entities;
 using Core.Interfaces;
 using FastEndpoints;
 using FluentValidation;
-using Infrastructure.Common;
 using Microsoft.Extensions.Options;
 
 

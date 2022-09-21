@@ -1,8 +1,7 @@
 ﻿using Api.Common;
 using Api.Options;
 using Core.Interfaces;
-using Core.Settings;
-using Infrastructure.Settings;
+using Infrastructure.Implementations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 

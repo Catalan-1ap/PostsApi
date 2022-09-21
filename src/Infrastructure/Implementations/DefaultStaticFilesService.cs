@@ -4,7 +4,7 @@ using Core.Models;
 using Microsoft.AspNetCore.Http;
 
 
-namespace Infrastructure.Services;
+namespace Infrastructure.Implementations;
 
 
 public sealed class DefaultStaticFilesService : IStaticFilesService
